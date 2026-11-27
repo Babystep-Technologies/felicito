@@ -7,68 +7,35 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ChevronDown } from 'lucide-react';
-import { cardTypes } from '@/config/cardTypes';
+import { products } from '@/config/products';
+import ColorIconTile from '@/components/ColorIconTile';
 
 export const ProductMenu: React.FC = () => {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center gap-1 text-gray-600 hover:text-gray-900 transition font-medium text-base outline-none">
+      <DropdownMenuTrigger className="flex items-center gap-1 rounded-full px-3 py-1.5 font-medium text-base text-foreground/80 outline-none transition hover:bg-muted hover:text-foreground data-[state=open]:bg-muted">
         Personal
         <ChevronDown className="w-4 h-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-[360px] p-3" align="start">
         <div className="flex flex-col gap-1">
-          {cardTypes.map(product => {
-            const iconTile = (
-              <div
-                className={`shrink-0 flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br ${product.gradient}`}
+          {products.map(product => (
+            <DropdownMenuItem key={product.id} asChild className="p-0 focus:bg-transparent">
+              <Link
+                to={product.route}
+                className="flex items-start gap-3 rounded-xl p-3 transition-colors hover:bg-[var(--hover-tint)] cursor-pointer"
+                style={{ ['--hover-tint' as string]: product.softColorVar }}
               >
-                <product.icon className="w-5 h-5 text-white" />
-              </div>
-            );
-            const body = (
-              <div>
-                <div className="font-semibold text-gray-900 text-sm flex items-center gap-2">
-                  {product.label}
-                  {product.comingSoon && (
-                    <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 border border-gray-200 rounded-full px-1.5 py-0.5">
-                      Soon
-                    </span>
-                  )}
-                </div>
-                <div className="text-xs text-gray-500 mt-0.5 leading-snug">
-                  {product.description}
-                </div>
-              </div>
-            );
-
-            if (product.comingSoon) {
-              return (
-                <DropdownMenuItem
-                  key={product.id}
-                  disabled
-                  className="p-0 focus:bg-transparent opacity-60"
-                >
-                  <div className="flex items-start gap-3 p-3 rounded-lg">
-                    {iconTile}
-                    {body}
+                <ColorIconTile icon={product.icon} colorVar={product.colorVar} />
+                <div>
+                  <div className="text-sm font-semibold text-foreground">{product.label}</div>
+                  <div className="mt-0.5 text-xs leading-snug text-muted-foreground">
+                    {product.description}
                   </div>
-                </DropdownMenuItem>
-              );
-            }
-
-            return (
-              <DropdownMenuItem key={product.id} asChild className="p-0 focus:bg-transparent">
-                <Link
-                  to={product.route}
-                  className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-                >
-                  {iconTile}
-                  {body}
-                </Link>
-              </DropdownMenuItem>
-            );
-          })}
+                </div>
+              </Link>
+            </DropdownMenuItem>
+          ))}
         </div>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -5,7 +5,7 @@
 # user's contact — a foreign key only checks that the target row exists, not
 # who owns it. So the ownership rule lives here, and this validation is the
 # only thing standing between a hand-crafted mutation and someone else's
-# mailing addresses. Mutations::AddContactsToList checks ownership up front too;
+# contacts. Mutations::AddContactsToList checks ownership up front too;
 # this is the backstop that makes any other write path safe as well.
 class ContactListMembership < ApplicationRecord
   CROSS_USER_MESSAGE = "must belong to the same user as the list"

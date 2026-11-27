@@ -9,11 +9,12 @@ import {
 import { ChevronDown } from 'lucide-react';
 import { businessLinks } from '@/config/businessLinks';
 import { slackInstallUrl } from '@/lib/slack';
+import ColorIconTile from '@/components/ColorIconTile';
 
 export const BusinessMenu: React.FC = () => {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center gap-1 text-gray-600 hover:text-gray-900 transition font-medium text-base outline-none">
+      <DropdownMenuTrigger className="flex items-center gap-1 rounded-full px-3 py-1.5 font-medium text-base text-foreground/80 outline-none transition hover:bg-muted hover:text-foreground data-[state=open]:bg-muted">
         Business
         <ChevronDown className="w-4 h-4" />
       </DropdownMenuTrigger>
@@ -23,16 +24,12 @@ export const BusinessMenu: React.FC = () => {
             <DropdownMenuItem key={link.id} asChild className="p-0 focus:bg-transparent">
               <Link
                 to={link.route}
-                className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                className="flex items-start gap-3 rounded-xl p-3 transition-colors hover:bg-muted cursor-pointer"
               >
-                <div
-                  className={`shrink-0 flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br ${link.gradient}`}
-                >
-                  <link.icon className="w-5 h-5 text-white" />
-                </div>
+                <ColorIconTile icon={link.icon} colorVar={link.colorVar} />
                 <div>
-                  <div className="font-semibold text-gray-900 text-sm">{link.label}</div>
-                  <div className="text-xs text-gray-500 mt-0.5 leading-snug">
+                  <div className="text-sm font-semibold text-foreground">{link.label}</div>
+                  <div className="mt-0.5 text-xs leading-snug text-muted-foreground">
                     {link.description}
                   </div>
                 </div>
@@ -40,7 +37,7 @@ export const BusinessMenu: React.FC = () => {
             </DropdownMenuItem>
           ))}
         </div>
-        <div className="mt-2 pt-3 border-t border-gray-200 flex justify-center">
+        <div className="mt-2 pt-3 border-t border-border flex justify-center">
           <a href={slackInstallUrl()} aria-label="Add Felicito to Slack">
             <img
               alt="Add to Slack"

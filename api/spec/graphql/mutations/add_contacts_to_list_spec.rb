@@ -11,7 +11,7 @@ RSpec.describe Mutations::AddContactsToList, type: :request do
     <<~GRAPHQL
       mutation AddContactsToList($listId: ID!, $contactIds: [ID!]!) {
         addContactsToList(input: { listId: $listId, contactIds: $contactIds }) {
-          contactList { id name contactsCount mailableContactsCount contacts { id name } }
+          contactList { id name contactsCount contacts { id name } }
           errors
         }
       }
@@ -25,13 +25,13 @@ RSpec.describe Mutations::AddContactsToList, type: :request do
 
   it "adds several contacts in one call" do
     mom = create(:contact, user:, name: "Mom")
-    dad = create(:contact, :mailable, user:, name: "Dad")
+    dad = create(:contact, user:, name: "Dad")
 
     data = exec({ listId: list.id, contactIds: [ mom.id, dad.id ] })
 
     expect(data["errors"]).to be_empty
     expect(data["contactList"]["contacts"].map { |c| c["name"] }).to eq([ "Dad", "Mom" ])
-    expect(data["contactList"]).to include("contactsCount" => 2, "mailableContactsCount" => 1)
+    expect(data["contactList"]).to include("contactsCount" => 2)
   end
 
   it "is idempotent: adding a contact already on the list is a no-op, not an error" do

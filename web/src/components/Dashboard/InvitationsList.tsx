@@ -122,7 +122,7 @@ const InvitationWithImageLoader: React.FC<{
   if (error) {
     return (
       <Card
-        className="relative min-h-[200px] max-w-[600px] w-full mx-auto overflow-hidden flex items-center justify-center bg-gray-100 dark:bg-gray-800"
+        className="relative min-h-[200px] max-w-[600px] w-full mx-auto overflow-hidden flex items-center justify-center bg-muted"
         style={{
           aspectRatio: '4/3',
           maxHeight: '25vh',
@@ -145,26 +145,26 @@ const InvitationWithImageLoader: React.FC<{
         backgroundImage: invitation.coverImageUrl ? `url(${invitation.coverImageUrl})` : undefined,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        backgroundColor: invitation.coverImageUrl ? undefined : '#8B5CF6',
+        backgroundColor: invitation.coverImageUrl ? undefined : 'var(--color-brand-green)',
         aspectRatio: '4/3',
         maxHeight: '25vh',
       }}
-      className="relative min-h-[200px] max-w-[600px] w-full mx-auto overflow-hidden"
+      className="pop-hover relative min-h-[200px] max-w-[600px] w-full mx-auto overflow-hidden"
     >
       <CardContent
         className="relative z-10 flex flex-col h-full text-white cursor-pointer"
         onClick={() => navigate(`/invitation/${invitation.externalId}`)}
       >
-        <div className="bg-white/95 text-black text-center px-4 py-3 rounded-md shadow-md mx-auto w-[85%] max-w-[90%] overflow-hidden">
+        <div className="bg-card text-foreground text-center px-4 py-3 rounded-xl border-2 border-ink shadow-pop-sm mx-auto w-[85%] max-w-[90%] overflow-hidden">
           <h2 className="font-bold text-lg truncate">{invitation.title}</h2>
-          <div className="flex items-center justify-center gap-2 mt-2 text-sm text-gray-600">
+          <div className="flex items-center justify-center gap-2 mt-2 text-sm text-muted-foreground">
             <Calendar className="w-3 h-3" />
             <span className="truncate">{formatEventDate()}</span>
             <span>•</span>
             <span>{formatEventTime()}</span>
           </div>
           {invitation.location && (
-            <div className="flex items-center justify-center gap-1 mt-1 text-xs text-gray-500">
+            <div className="flex items-center justify-center gap-1 mt-1 text-xs text-muted-foreground">
               <MapPin className="w-3 h-3" />
               <span className="truncate">{invitation.location}</span>
             </div>
@@ -176,7 +176,7 @@ const InvitationWithImageLoader: React.FC<{
             <>
               <Button
                 size="icon"
-                className="bg-white text-black rounded-full shadow hover:bg-gray-100 p-2"
+                className="bg-card text-foreground rounded-full border-2 border-ink shadow-pop-sm hover:bg-muted p-2"
                 onClick={() => onOpenSheet(invitation.externalId)}
               >
                 <MoreHorizontal className="w-4 h-4" />
@@ -240,7 +240,7 @@ const InvitationWithImageLoader: React.FC<{
               <DropdownMenuTrigger asChild>
                 <Button
                   size="icon"
-                  className="bg-white text-black rounded-full shadow hover:bg-gray-100 p-2"
+                  className="bg-card text-foreground rounded-full border-2 border-ink shadow-pop-sm hover:bg-muted p-2"
                 >
                   <MoreHorizontal className="w-4 h-4" />
                 </Button>
@@ -275,52 +275,27 @@ interface InvitationsListProps {
   invitations: InvitationType[];
   onRefetch: () => void;
   onShareClick: (invitationId: string) => void;
-  // Supplied by the dashboard so the copy can name the active organization.
-  emptyTitle: string;
-  emptyDescription: string;
+  // The "All" view previews only the first few invitations.
+  limit?: number;
 }
 
 export const InvitationsList: React.FC<InvitationsListProps> = ({
   invitations,
   onShareClick,
-  emptyTitle,
-  emptyDescription,
+  limit,
 }) => {
   const navigate = useNavigate();
   const [openSheetInvitationId, setOpenSheetInvitationId] = useState<string | null>(null);
 
-  if (invitations.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12 text-center space-y-6">
-        <img src="/logo.svg" alt="Felicito Logo" className="opacity-80 w-24 h-24" />
-        <div className="space-y-2">
-          <h2 className="text-2xl font-semibold text-gray-800">{emptyTitle}</h2>
-          <p className="text-gray-500 text-lg">{emptyDescription}</p>
-        </div>
-        <motion.button
-          onClick={() => navigate('/invitation/new')}
-          className="px-6 py-3 text-lg sm:text-xl font-extrabold bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl shadow-xl w-full sm:w-auto"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          Create New Invitation
-        </motion.button>
-      </div>
-    );
-  }
+  // The dashboard's ProductSection owns the empty state and the create button.
+  if (invitations.length === 0) return null;
+
+  const visibleInvitations = limit ? invitations.slice(0, limit) : invitations;
 
   return (
     <div className="w-full">
-      <motion.button
-        onClick={() => navigate('/invitation/new')}
-        className="mb-6 px-6 py-4 text-xl font-extrabold bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl shadow-xl w-full sm:w-auto"
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-      >
-        Create New Invitation
-      </motion.button>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {invitations.map((invitation: InvitationType) => (
+        {visibleInvitations.map((invitation: InvitationType) => (
           <InvitationWithImageLoader
             key={invitation.externalId}
             invitation={invitation}

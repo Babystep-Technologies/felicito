@@ -5,10 +5,8 @@ module Types
     field :id, ID, null: false
     field :name, String, null: false
 
-    # Both counts so a list row can render "38 of 42 contacts have an address"
-    # without asking for `contacts` at all.
+    # So a list row can show its size without asking for `contacts` at all.
     field :contacts_count, Integer, null: false
-    field :mailable_contacts_count, Integer, null: false
 
     field :contacts, [ Types::ContactType ], null: false
 

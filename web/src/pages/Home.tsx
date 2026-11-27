@@ -1,382 +1,346 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { WordRotate } from '@/components/magicui/word-rotate';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import * as motion from 'motion/react-client';
+import {
+  ArrowRight,
+  Building2,
+  CalendarCheck,
+  Check,
+  Gift,
+  Github,
+  Heart,
+  Link2,
+  Mail,
+  PartyPopper,
+  QrCode,
+  Send,
+  Star,
+  Users,
+} from 'lucide-react';
+import { WordRotate } from '@/components/magicui/word-rotate';
 import Reveal from '@/components/Reveal';
 import Faq from '@/pages/Home/Faq';
-import {
-  Github,
-  Star,
-  Check,
-  CalendarCheck,
-  QrCode,
-  Users,
-  Sparkles,
-  Heart,
-  Gift,
-  Send,
-  ChevronLeft,
-  ChevronRight,
-  Building2,
-  ArrowRight,
-} from 'lucide-react';
-import { occasions } from '@/config/occasions';
-import { cardTypes, type CardTypeId } from '@/config/cardTypes';
-import { GITHUB_REPO_URL } from '@/lib/constants';
+import { Button } from '@/components/ui/button';
 import { IntentPickerDialog } from '@/components/IntentPickerDialog';
+import CreateProductButton from '@/components/CreateProductButton';
+import ProductVignette from '@/components/ProductVignette';
+import {
+  Bird,
+  Blossom,
+  Grass,
+  Hills,
+  Leaf,
+  Sun,
+  TimeOfDaySky,
+  WavyEdge,
+} from '@/components/doodles';
+import { products, type ProductId } from '@/config/products';
+import { GITHUB_REPO_URL } from '@/lib/constants';
 import { useAuth } from '@/contexts/AuthContext';
 
-const cardFeatures = [
-  { icon: Users, text: 'No signup needed for contributors' },
-  { icon: Sparkles, text: 'Works for any occasion' },
-  { icon: QrCode, text: 'QR code for in-person events' },
-];
+type Feature = { icon: typeof Users; text: string };
 
-const oneOnOneFeatures = [
-  { icon: Heart, text: 'One heartfelt message, just for them' },
-  { icon: Sparkles, text: 'Opens with a celebratory effect' },
-  { icon: Send, text: 'Share by link or send by email' },
-];
-
-const invitationFeatures = [
-  { icon: Sparkles, text: 'Animated opening screen' },
-  { icon: Check, text: 'Built-in RSVP tracking' },
-  { icon: CalendarCheck, text: 'One-tap add to calendar' },
-];
-
-const registryFeatures = [
-  { icon: Gift, text: 'Add gifts from any store, just paste a link' },
-  { icon: Check, text: 'No duplicate gifts — items are claimed as they go' },
-  { icon: Users, text: 'Guests need no account' },
-];
-
-const featuresByType: Record<CardTypeId, { icon: typeof Users; text: string }[]> = {
-  group: cardFeatures,
-  one_on_one: oneOnOneFeatures,
-  invitation: invitationFeatures,
-  registry: registryFeatures,
+const featuresByProduct: Record<ProductId, Feature[]> = {
+  group: [
+    { icon: Users, text: 'No signup needed for contributors' },
+    { icon: PartyPopper, text: 'Works for any occasion' },
+    { icon: QrCode, text: 'QR code for in-person events' },
+  ],
+  one_on_one: [
+    { icon: Heart, text: 'One heartfelt message, just for them' },
+    { icon: Mail, text: 'Opens with a little celebration' },
+    { icon: Send, text: 'Share by link or send by email' },
+  ],
+  invitation: [
+    { icon: PartyPopper, text: 'An opening screen guests remember' },
+    { icon: Check, text: 'Built-in RSVP tracking' },
+    { icon: CalendarCheck, text: 'One-tap add to calendar' },
+  ],
+  registry: [
+    { icon: Link2, text: 'Add gifts from any store — just paste a link' },
+    { icon: Gift, text: 'No duplicate gifts — items are claimed as they go' },
+    { icon: Users, text: 'Guests need no account' },
+  ],
 };
 
+const OPEN_SOURCE_POINTS = [
+  {
+    title: 'Transparent',
+    desc: 'Every line of code is public. See exactly how your data is handled.',
+  },
+  {
+    title: 'Self-hostable',
+    desc: 'Run Felicito on your own infrastructure whenever you want.',
+  },
+  {
+    title: 'Community-built',
+    desc: 'Made with contributors. Open an issue or a pull request anytime.',
+  },
+];
+
+// Decorative ribbon of the moments people make things for. Plain words, not links — there
+// is no per-occasion page to maintain behind them.
+const MOMENTS = [
+  'Birthdays',
+  'Weddings',
+  'Baby showers',
+  'Farewells',
+  'Graduations',
+  'Anniversaries',
+  'New jobs',
+  'Retirements',
+  'Housewarmings',
+  'Get well soon',
+  'Thank yous',
+  'Just because',
+];
+
+const BLOSSOM_COLORS = [
+  'var(--color-brand-pink)',
+  'var(--color-brand-yellow)',
+  'var(--color-brand-blue)',
+  'var(--color-brand-green)',
+];
+
 const Home: React.FC = () => {
-  const navigate = useNavigate();
   const { user } = useAuth();
 
-  // Only dangle "for free" at signed-out visitors; it reads oddly once they have an account.
-  const createCtaLabel = user ? 'Create a card' : 'Create a card for free';
-
-  // Card-type showcase slideshow: emphasise one type at a time, themed in its brand color.
-  const [activeSlide, setActiveSlide] = useState(0);
-  const goToSlide = (index: number) =>
-    setActiveSlide((index + cardTypes.length) % cardTypes.length);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveSlide(current => (current + 1) % cardTypes.length);
-    }, 6000);
-    return () => clearInterval(timer);
-  }, [activeSlide]);
-
-  const activeType = cardTypes[activeSlide];
-  const activeFeatures = featuresByType[activeType.id];
+  // Only dangle "free" at signed-out visitors; it reads oddly once they have an account.
+  const createCtaLabel = user ? 'Start creating' : 'Start creating — free';
 
   return (
-    <div className="flex flex-col w-full overflow-x-hidden overscroll-y-auto">
-      {/* Hero section */}
-      <section className="scroll-section bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 min-h-screen overflow-y-hidden flex flex-col justify-center items-center px-4 py-[5vh] relative">
-        {/* Subtle gradient orbs for depth */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-600/20 rounded-full blur-3xl"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-3xl"></div>
-        </div>
-
-        <Reveal>
-          <h1 className="text-white text-4xl md:text-6xl font-bold text-center px-6 relative z-10">
-            Make Life Moments Shine
+    // The negative bottom margin tucks the closing hills under the footer's wavy edge, so
+    // the scene runs straight into it with no strip of page background between.
+    <div className="-mb-6 flex w-full flex-col overflow-x-hidden sm:-mb-10">
+      {/* Hero: a flat sky that follows the visitor's time of day, over rolling hills. */}
+      <TimeOfDaySky className="min-h-[calc(88svh-4rem)]">
+        <section className="relative flex min-h-[calc(88svh-4rem)] flex-col items-center justify-center px-4 pt-16 pb-48 text-center sm:pb-56">
+          <Reveal>
+            <p className="mx-auto mb-6 inline-flex flex-wrap items-center justify-center gap-x-2 rounded-full border-2 border-ink bg-card px-4 py-1.5 text-sm font-semibold text-foreground shadow-pop-sm">
+              {products.map((product, i) => (
+                <span key={product.id} className="inline-flex items-center gap-1.5">
+                  {i > 0 && <span aria-hidden="true">·</span>}
+                  <span
+                    aria-hidden="true"
+                    className="size-2.5 rounded-full border-[1.5px] border-ink"
+                    style={{ backgroundColor: product.colorVar }}
+                  />
+                  {product.label}
+                </span>
+              ))}
+            </p>
+            <h1 className="mx-auto max-w-4xl text-5xl leading-[1.05] sm:text-6xl md:text-7xl">
+              Make life&apos;s little moments <span className="marker-swipe">feel big</span>
+            </h1>
             <WordRotate
-              className="text-4xl md:text-6xl font-bold text-center px-6"
-              words={[
-                'Get Everyone to Sign One Card',
-                'Send Someone a Heartfelt Note',
-                'Invite Everyone to Celebrate',
-                'Share a Wish List with Friends',
-              ]}
+              className="mt-5 text-xl font-semibold underline decoration-4 underline-offset-8 sm:text-2xl"
+              words={products.map(product => product.intent)}
               colors={[
-                'text-[var(--color-brand-pink)]',
-                'text-[var(--color-brand-blue)]',
-                'text-[var(--color-brand-green)]',
-                'text-[var(--color-brand-yellow)]',
+                'decoration-brand-pink',
+                'decoration-brand-blue',
+                'decoration-brand-green',
+                'decoration-brand-yellow',
               ]}
             />
-          </h1>
+            <p className="mx-auto mt-4 max-w-2xl text-lg opacity-80 sm:text-xl">
+              Cards everyone signs, notes for one special person, invitations with RSVPs, and wish
+              lists for any occasion.
+            </p>
+          </Reveal>
 
-          <p className="text-white/80 text-lg md:text-2xl font-medium text-center px-6 mt-6 relative z-10 max-w-2xl mx-auto">
-            Beautiful digital cards that make life&apos;s occasions memorable.
-          </p>
-        </Reveal>
+          <motion.div
+            className="relative z-10 mt-9 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25, type: 'spring', stiffness: 220, damping: 18 }}
+          >
+            <IntentPickerDialog>
+              <Button size="xl" className="group relative w-full sm:w-auto">
+                {createCtaLabel}
+                <ArrowRight className="transition-transform group-hover:translate-x-1" />
+                {/* A couple of leaves blow off the button on hover. */}
+                <Leaf className="pointer-events-none absolute -top-2 right-2 w-5 opacity-0 transition-all duration-700 ease-out group-hover:translate-x-14 group-hover:-translate-y-8 group-hover:rotate-90 group-hover:opacity-100 motion-reduce:hidden" />
+                <Leaf className="pointer-events-none absolute right-8 -bottom-2 w-4 opacity-0 transition-all delay-100 duration-700 ease-out group-hover:translate-x-20 group-hover:-translate-y-4 group-hover:-rotate-45 group-hover:opacity-100 motion-reduce:hidden" />
+              </Button>
+            </IntentPickerDialog>
+            <Button asChild size="xl" variant="outline" className="w-full sm:w-auto">
+              <a href="#what-are-we-making">See what you can make</a>
+            </Button>
+          </motion.div>
 
-        <motion.div
-          className="mt-8 sm:mt-12 relative z-10 mx-4 flex flex-col items-center gap-5"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.6 }}
-        >
-          <IntentPickerDialog>
-            <button className="group bg-white text-gray-900 rounded-2xl px-10 py-5 flex items-center justify-center gap-3 hover:scale-105 transition-all shadow-xl hover:shadow-2xl w-full sm:w-auto">
-              <Sparkles className="w-5 h-5" />
-              <span className="text-lg font-bold">{createCtaLabel}</span>
-            </button>
-          </IntentPickerDialog>
-        </motion.div>
-      </section>
+          <div aria-hidden="true" className="absolute inset-x-0 bottom-0">
+            <Bird className="animate-float absolute bottom-[62%] left-[14%] w-10 sm:w-14" />
+            <Grass className="absolute bottom-[30%] left-[38%] w-8" />
+            <Grass className="absolute right-[22%] bottom-[44%] w-7 [animation-delay:-2.5s]" />
+            <Hills className="h-36 sm:h-48" />
+          </div>
+        </section>
+      </TimeOfDaySky>
 
-      {/* Product showcase */}
-      <section className="scroll-section bg-gradient-to-br from-yellow-50 via-pink-50 to-blue-50 min-h-screen overflow-y-hidden flex flex-col justify-center items-center py-[5vh] px-4 text-center">
-        <Reveal>
-          <h2 className="text-gray-900 text-4xl md:text-6xl pt-12 font-black mb-4">
-            What do you want to do?
-          </h2>
-          <p className="text-gray-600 text-lg md:text-2xl font-medium mb-12">
-            Start with the moment you have in mind — we'll pick the right card for it
-          </p>
-        </Reveal>
-
-        <Reveal>
-          <div className="relative w-full max-w-5xl mx-auto mb-8">
-            {/* Slide — re-keyed per type so it re-triggers the fade on change */}
-            <div
-              key={activeType.id}
-              className="animate-fade-in grid md:grid-cols-2 rounded-3xl bg-white shadow-2xl overflow-hidden text-left"
-            >
-              {/* Themed visual side, emphasising the type's brand color */}
-              <div
-                className={`bg-gradient-to-br ${activeType.gradient} p-10 sm:p-14 text-white flex flex-col justify-center min-h-[300px] sm:min-h-[360px]`}
-              >
-                {activeType.comingSoon && (
-                  <span className="self-start mb-4 text-xs font-semibold uppercase tracking-wide bg-white/20 rounded-full px-3 py-1">
-                    Coming soon
-                  </span>
-                )}
-                <activeType.icon className="w-16 h-16 drop-shadow-lg mb-6" />
-                <span className="text-xs font-semibold uppercase tracking-wider text-white/70 mb-2">
-                  {activeType.label}
-                </span>
-                <h3 className="text-4xl font-bold drop-shadow-md">{activeType.intent}</h3>
-                <p className="text-white/90 text-lg mt-3 drop-shadow-sm max-w-md">
-                  {activeType.description}
-                </p>
-              </div>
-
-              {/* Content side */}
-              <div className="p-10 sm:p-14 flex flex-col justify-center">
-                <ul className="space-y-4 mb-8">
-                  {activeFeatures.map(feature => (
-                    <li key={feature.text} className="flex items-center gap-3 text-gray-700">
-                      <feature.icon
-                        className="w-5 h-5 shrink-0"
-                        style={{ color: activeType.colorVar }}
-                      />
-                      <span className="font-medium">{feature.text}</span>
-                    </li>
-                  ))}
-                </ul>
-                {activeType.comingSoon ? (
-                  <span className="inline-flex w-fit items-center justify-center rounded-2xl border-2 border-gray-200 px-6 py-4 font-bold text-gray-400">
-                    Coming soon
-                  </span>
-                ) : (
-                  <button
-                    onClick={() => navigate(activeType.route)}
-                    className={`w-fit bg-gradient-to-r ${activeType.gradient} text-white rounded-2xl px-8 py-4 font-bold hover:opacity-90 hover:scale-105 transition-all shadow-md hover:shadow-xl`}
-                  >
-                    Get started →
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Prev / next arrows */}
-            <button
-              type="button"
-              aria-label="Previous card type"
-              onClick={() => goToSlide(activeSlide - 1)}
-              className="absolute left-2 sm:-left-5 top-1/2 -translate-y-1/2 flex items-center justify-center w-11 h-11 rounded-full bg-white shadow-lg hover:scale-110 transition-all text-gray-700"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </button>
-            <button
-              type="button"
-              aria-label="Next card type"
-              onClick={() => goToSlide(activeSlide + 1)}
-              className="absolute right-2 sm:-right-5 top-1/2 -translate-y-1/2 flex items-center justify-center w-11 h-11 rounded-full bg-white shadow-lg hover:scale-110 transition-all text-gray-700"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </button>
-
-            {/* Dots */}
-            <div className="flex justify-center items-center gap-3 mt-6">
-              {cardTypes.map((type, index) => {
-                const isActive = index === activeSlide;
-                return (
-                  <button
-                    key={type.id}
-                    type="button"
-                    aria-label={`Show ${type.label}`}
-                    aria-current={isActive}
-                    onClick={() => goToSlide(index)}
-                    className={`h-2.5 rounded-full transition-all ${isActive ? 'w-8' : 'w-2.5 bg-gray-300 hover:bg-gray-400'}`}
-                    style={isActive ? { backgroundColor: type.colorVar } : undefined}
+      {/* Moments ribbon: a slow marquee of occasions on an ink band. */}
+      <div
+        aria-hidden="true"
+        className="overflow-hidden border-y-2 border-ink bg-ink py-3 text-paper motion-reduce:overflow-x-auto"
+      >
+        <div className="animate-marquee flex w-max items-center">
+          {[0, 1].map(copy => (
+            <ul key={copy} className="flex items-center">
+              {MOMENTS.map((moment, i) => (
+                <li key={moment} className="flex items-center">
+                  <span className="font-display px-5 text-lg whitespace-nowrap">{moment}</span>
+                  <Blossom
+                    className="size-4 text-paper"
+                    color={BLOSSOM_COLORS[i % BLOSSOM_COLORS.length]}
                   />
-                );
-              })}
-            </div>
-          </div>
+                </li>
+              ))}
+            </ul>
+          ))}
+        </div>
+      </div>
+
+      {/* Products: four solid blocks, one per thing you can make. */}
+      <section id="what-are-we-making" className="scroll-mt-20 px-4 py-20 sm:py-28">
+        <Reveal className="mx-auto max-w-3xl text-center">
+          <h2 className="text-4xl sm:text-5xl md:text-6xl">What are we making?</h2>
+          <p className="mt-4 text-lg text-muted-foreground sm:text-xl">
+            Start with the moment you have in mind.
+          </p>
         </Reveal>
 
-        {/* Quick Occasion Links */}
-        <Reveal>
-          <div className="w-full max-w-6xl mx-auto mt-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">
-              Or browse by occasion
-            </h2>
-            <div className="flex flex-wrap justify-center gap-3 mb-8">
-              {occasions.slice(0, 12).map(occasion => {
-                const destination = occasion.hasLandingPage
-                  ? `/for/${occasion.slug}`
-                  : `/group-card/new?occasion=${encodeURIComponent(occasion.name)}`;
-                return (
-                  <Link
-                    key={occasion.slug}
-                    to={destination}
-                    className="px-6 py-3 bg-white rounded-full shadow-md hover:shadow-xl hover:scale-105 transition-all font-semibold text-gray-900 border-2 border-gray-200 hover:border-purple-300"
-                  >
-                    {occasion.name}
-                  </Link>
-                );
-              })}
-            </div>
-            <Link
-              to="/occasions"
-              className="inline-block text-purple-600 hover:text-purple-700 font-bold text-lg hover:scale-105 transition-all"
-            >
-              View All Occasions →
-            </Link>
-          </div>
-        </Reveal>
+        <div className="mx-auto mt-14 grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
+          {products.map((product, i) => (
+            <Reveal key={product.id} delay={i * 0.08}>
+              <article
+                className={`pop-hover group flex h-full flex-col gap-5 border-2 border-ink p-6 text-[#1d1b2f] shadow-pop sm:flex-row sm:p-7 ${
+                  i % 2 ? 'hand-cut-alt hover:rotate-[0.6deg]' : 'hand-cut hover:-rotate-[0.6deg]'
+                }`}
+                style={{ backgroundColor: product.colorVar }}
+              >
+                <div className="flex shrink-0 items-center justify-center rounded-2xl border-2 border-ink bg-[#fff8ec] p-3 sm:size-40 sm:self-center">
+                  <ProductVignette
+                    product={product.id}
+                    className="h-24 w-auto transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-2 motion-reduce:transform-none"
+                  />
+                </div>
+                <div className="flex flex-1 flex-col">
+                  <span className="text-xs font-bold tracking-widest uppercase opacity-75">
+                    {product.label}
+                  </span>
+                  <h3 className="mt-1 text-2xl leading-tight sm:text-3xl">{product.intent}</h3>
+                  <ul className="mt-4 mb-6 space-y-2">
+                    {featuresByProduct[product.id].map(feature => (
+                      <li key={feature.text} className="flex items-center gap-2.5 font-medium">
+                        <feature.icon className="size-4 shrink-0" strokeWidth={2.5} />
+                        {feature.text}
+                      </li>
+                    ))}
+                  </ul>
+                  <CreateProductButton product={product.id} tone="ink" className="mt-auto w-fit" />
+                </div>
+              </article>
+            </Reveal>
+          ))}
+        </div>
       </section>
 
-      {/* Open-source section */}
-      <section className="scroll-section bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 min-h-screen overflow-y-hidden flex flex-col justify-center items-center px-4 py-[5vh] relative w-full">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-green-500/10 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl"></div>
-        </div>
-
-        <Reveal>
-          <div className="max-w-4xl mx-auto text-center relative z-10">
-            <div className="flex justify-center mb-6">
-              <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-sm">
-                <Github className="w-8 h-8 text-white" />
-              </div>
+      {/* Open source: a solid blue block with hand-cut edges. */}
+      <section className="text-brand-blue">
+        <WavyEdge />
+        <div className="bg-brand-blue px-4 py-16 text-[#1d1b2f] sm:py-24">
+          <Reveal className="mx-auto max-w-5xl text-center">
+            <div className="mx-auto mb-6 flex size-16 items-center justify-center rounded-2xl border-2 border-ink bg-[#fff8ec] shadow-pop">
+              <Github className="size-8" />
             </div>
-            <h2 className="text-white text-4xl md:text-6xl font-black mb-6">Built in the open</h2>
-            <p className="text-white/80 text-lg md:text-2xl font-medium mb-10 max-w-2xl mx-auto">
-              Felicito is fully open source. Inspect the code, self-host it, or contribute — no
-              lock-in, no hidden data practices, no paywalls.
+            <h2 className="text-4xl sm:text-5xl md:text-6xl">Built in the open</h2>
+            <p className="mx-auto mt-5 max-w-2xl text-lg font-medium sm:text-xl">
+              Felicito is fully open source. Read the code, self-host it, or pitch in — no lock-in,
+              no hidden data practices, no paywalls.
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12 text-left">
-              {[
-                {
-                  title: 'Transparent',
-                  desc: 'Every line of code is public. See exactly how your data is handled.',
-                },
-                {
-                  title: 'Self-hostable',
-                  desc: 'Run Felicito on your own infrastructure whenever you want.',
-                },
-                {
-                  title: 'Community-driven',
-                  desc: 'Built with contributors. Open an issue or a pull request anytime.',
-                },
-              ].map(item => (
+            <div className="mt-12 grid grid-cols-1 gap-5 text-left sm:grid-cols-3">
+              {OPEN_SOURCE_POINTS.map((item, i) => (
                 <div
                   key={item.title}
-                  className="rounded-2xl bg-white/5 border border-white/10 p-6 backdrop-blur-sm"
+                  className={`border-2 border-ink bg-[#fff8ec] p-6 shadow-pop ${i % 2 ? 'hand-cut-alt' : 'hand-cut'}`}
                 >
-                  <h3 className="text-white text-xl font-bold mb-2">{item.title}</h3>
-                  <p className="text-white/70 text-base leading-relaxed">{item.desc}</p>
+                  <h3 className="text-xl">{item.title}</h3>
+                  <p className="mt-2 leading-relaxed text-[#5f5a6e]">{item.desc}</p>
                 </div>
               ))}
             </div>
 
-            <a
-              href={GITHUB_REPO_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 bg-white text-gray-900 rounded-2xl px-10 py-5 font-bold text-lg hover:scale-105 transition-all shadow-xl hover:shadow-2xl"
-            >
-              <Star className="w-5 h-5 text-[var(--color-brand-yellow)]" />
-              Star us on GitHub
-            </a>
-          </div>
-        </Reveal>
+            <Button asChild size="xl" tone="paper" className="mt-12">
+              <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer">
+                <Star className="fill-brand-yellow" />
+                Star us on GitHub
+              </a>
+            </Button>
+          </Reveal>
+        </div>
+        <WavyEdge flip />
       </section>
 
-      {/* FAQ Section */}
-      <section className="scroll-section bg-gradient-to-br from-yellow-50 via-pink-50 to-blue-50 min-h-screen overflow-y-hidden flex flex-col justify-center items-center px-4 py-[5vh] w-full">
+      {/* FAQ */}
+      <section className="px-4 py-8">
         <Reveal>
           <Faq />
         </Reveal>
       </section>
 
       {/* Business handoff band */}
-      <section className="bg-gray-900 py-12 px-4 w-full">
+      <section className="border-y-2 border-ink bg-brand-green px-4 py-12 text-[#1d1b2f]">
         <Reveal>
-          <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
+          <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-6 text-center sm:flex-row sm:text-left">
             <div className="flex items-center gap-4">
-              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/10 border border-white/20 shrink-0">
-                <Building2 className="w-6 h-6 text-white" />
+              <div className="hand-cut flex size-12 shrink-0 items-center justify-center border-2 border-ink bg-[#fff8ec]">
+                <Building2 className="size-6" />
               </div>
               <div>
-                <h3 className="text-white text-xl font-bold">Using Felicito for your business?</h3>
-                <p className="text-white/70">
+                <h3 className="text-2xl">Using Felicito for your business?</h3>
+                <p className="mt-1 font-medium opacity-85">
                   Group cards your team signs in Slack, and reminders before your clients&apos; big
                   days.
                 </p>
               </div>
             </div>
-            <Link
-              to="/for-business"
-              className="group inline-flex items-center gap-2 bg-white text-gray-900 rounded-2xl px-7 py-4 font-bold hover:scale-105 transition-all shadow-lg whitespace-nowrap"
-            >
-              Felicito for Business
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
+            <Button asChild size="lg" tone="ink" className="group">
+              <Link to="/for-business">
+                Felicito for Business
+                <ArrowRight className="transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
           </div>
         </Reveal>
       </section>
 
-      {/* Final CTA Section */}
-      <section className="scroll-section bg-gradient-to-br from-purple-600 via-pink-500 to-blue-600 min-h-[60vh] overflow-y-hidden flex flex-col justify-center items-center px-4 py-16 w-full">
-        <Reveal>
-          <div className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8">
-            <h2 className="text-white text-3xl sm:text-4xl md:text-6xl font-black leading-tight">
-              Let's get the party started
-            </h2>
-            <p className="text-white/90 text-lg sm:text-xl md:text-2xl font-medium mb-4">
-              5 free credits to start. Open source. Start in seconds — no credit card required.
-            </p>
-            <div className="flex justify-center">
-              <IntentPickerDialog>
-                <button className="bg-white text-gray-900 rounded-2xl px-8 py-5 flex items-center justify-center gap-3 hover:scale-105 transition-all shadow-xl hover:shadow-2xl w-full sm:w-auto">
-                  <Sparkles className="w-5 h-5" />
-                  <span className="text-lg font-bold">{createCtaLabel}</span>
-                </button>
-              </IntentPickerDialog>
-            </div>
-          </div>
+      {/* Final CTA: a warm yellow evening with the sun coming up over the hills. */}
+      <section className="relative overflow-hidden bg-brand-yellow px-4 pt-20 pb-44 text-center text-[#1d1b2f] sm:pb-56">
+        <motion.div
+          aria-hidden="true"
+          className="pointer-events-none absolute right-[8%] bottom-24 w-24 sm:right-[14%] sm:bottom-32 sm:w-32"
+          initial={{ y: 80, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ type: 'spring', stiffness: 60, damping: 14 }}
+        >
+          <Sun />
+        </motion.div>
+        <Reveal className="relative z-10 mx-auto max-w-3xl">
+          <h2 className="text-4xl leading-tight sm:text-5xl md:text-6xl">
+            Let&apos;s get the party started
+          </h2>
+          <p className="mt-5 text-lg font-medium sm:text-xl">
+            5 free credits to start. Open source. No credit card required.
+          </p>
+          <IntentPickerDialog>
+            <Button size="xl" className="group mt-9 w-full sm:w-auto">
+              {createCtaLabel}
+              <ArrowRight className="transition-transform group-hover:translate-x-1" />
+            </Button>
+          </IntentPickerDialog>
         </Reveal>
+        <Hills className="absolute inset-x-0 bottom-0 h-32 sm:h-44" />
       </section>
     </div>
   );

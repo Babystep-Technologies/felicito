@@ -38,7 +38,7 @@ import CoverImageDialog from './components/CoverImageDialog';
 import CardPreview from './components/CardPreview';
 import EffectPicker from './components/EffectPicker';
 import SchedulePicker from './components/SchedulePicker';
-import { cardTypeById } from '@/config/cardTypes';
+import { productById } from '@/config/products';
 
 const CREATE_ONE_ON_ONE_CARD_DOCUMENT = `
   mutation CreateOneOnOneCard($input: CreateOneOnOneCardInput!) {
@@ -448,11 +448,7 @@ const CardOneOnOneNew: React.FC = () => {
         <Toaster />
 
         <div className="mb-8 text-center">
-          <h1
-            className={`mb-3 bg-gradient-to-r ${cardTypeById.one_on_one.gradient} bg-clip-text text-4xl font-bold text-transparent sm:text-5xl`}
-          >
-            Send a Card
-          </h1>
+          <h1 className="mb-3 text-4xl font-bold sm:text-5xl">Send a Card</h1>
           <p className="text-lg text-gray-600">
             Pick a design, write your message, send it. That&apos;s it.
           </p>
@@ -661,7 +657,9 @@ const CardOneOnOneNew: React.FC = () => {
                       <Button
                         onClick={handleCreateCard}
                         disabled={!isFormValid || creating}
-                        className={`h-14 w-full bg-gradient-to-r ${cardTypeById.one_on_one.gradient} text-lg font-bold text-white shadow-lg transition-all hover:opacity-90 hover:shadow-xl sm:w-auto`}
+                        tone={productById.one_on_one.tone}
+                        size="xl"
+                        className="h-14 w-full text-lg sm:w-auto"
                       >
                         {creating ? 'Creating…' : 'Create Card'}
                       </Button>

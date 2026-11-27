@@ -184,7 +184,7 @@ const CardWithImageLoader: React.FC<{
   if (error) {
     return (
       <Card
-        className="relative min-h-[200px] max-w-[600px] w-full mx-auto overflow-hidden flex items-center justify-center bg-gray-100 dark:bg-gray-800"
+        className="relative min-h-[200px] max-w-[600px] w-full mx-auto overflow-hidden flex items-center justify-center bg-muted"
         style={{
           aspectRatio: '4/3',
           maxHeight: '25vh',
@@ -207,11 +207,16 @@ const CardWithImageLoader: React.FC<{
         backgroundImage: card.coverImageUrl ? `url(${card.coverImageUrl})` : undefined,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        backgroundColor: card.coverImageUrl ? undefined : 'black',
+        // No cover yet: fall back to the product's solid color rather than a black void.
+        backgroundColor: card.coverImageUrl
+          ? undefined
+          : card.kind === 'one_on_one'
+            ? 'var(--color-brand-blue)'
+            : 'var(--color-brand-pink)',
         aspectRatio: '4/3',
         maxHeight: '25vh',
       }}
-      className="relative min-h-[200px] max-w-[600px] w-full mx-auto overflow-hidden"
+      className="pop-hover relative min-h-[200px] max-w-[600px] w-full mx-auto overflow-hidden"
     >
       <CardContent
         className="relative z-10 flex flex-col h-full text-white cursor-pointer"
@@ -232,15 +237,19 @@ const CardWithImageLoader: React.FC<{
           </div>
         )}
 
-        <div className="bg-white/90 text-black text-center px-4 py-3 rounded-md shadow-md mx-auto w-[80%] max-w-[90%] overflow-hidden">
+        <div className="bg-card text-foreground text-center px-4 py-3 rounded-xl border-2 border-ink shadow-pop-sm mx-auto w-[80%] max-w-[90%] overflow-hidden">
           <h2 className="font-bold text-lg truncate">{card.title}</h2>
           {card.recipients?.length > 0 && (
             <p className="text-sm font-medium mt-1 truncate">For: {card.recipients.join(', ')}</p>
           )}
           {scheduledAt && card.deliverToEmail && (
-            <p className="text-xs text-gray-600 mt-1 truncate">Sending to {card.deliverToEmail}</p>
+            <p className="text-xs text-muted-foreground mt-1 truncate">
+              Sending to {card.deliverToEmail}
+            </p>
           )}
-          {creator && <p className="text-xs text-gray-600 mt-1 truncate">Created by {creator}</p>}
+          {creator && (
+            <p className="text-xs text-muted-foreground mt-1 truncate">Created by {creator}</p>
+          )}
         </div>
 
         <div className="mt-auto pt-4 flex justify-end" onClick={e => e.stopPropagation()}>
@@ -248,7 +257,7 @@ const CardWithImageLoader: React.FC<{
             <>
               <Button
                 size="icon"
-                className="bg-white text-black rounded-full shadow hover:bg-gray-100 p-2"
+                className="bg-card text-foreground rounded-full border-2 border-ink shadow-pop-sm hover:bg-muted p-2"
                 onClick={() => onOpenSheet(card.externalId)}
               >
                 <MoreHorizontal className="w-4 h-4" />
@@ -358,7 +367,7 @@ const CardWithImageLoader: React.FC<{
               <DropdownMenuTrigger asChild>
                 <Button
                   size="icon"
-                  className="bg-white text-black rounded-full shadow hover:bg-gray-100 p-2"
+                  className="bg-card text-foreground rounded-full border-2 border-ink shadow-pop-sm hover:bg-muted p-2"
                 >
                   <MoreHorizontal className="w-4 h-4" />
                 </Button>
@@ -418,11 +427,8 @@ interface CardsListProps {
   onRefetch: () => void;
   onShareClick: (cardId: string) => void;
   onQrClick: (cardId: string) => void;
-  // Supplied per card kind by the dashboard, so a new kind needs no changes here.
-  createPath: string;
-  createLabel: string;
-  emptyTitle: string;
-  emptyDescription: string;
+  // The "All" view previews only the first few cards.
+  limit?: number;
   // Lets an org-owned card credit "you" instead of repeating your own name.
   currentUserId: string | null;
 }
@@ -432,10 +438,7 @@ export const CardsList: React.FC<CardsListProps> = ({
   onRefetch,
   onShareClick,
   onQrClick,
-  createPath,
-  createLabel,
-  emptyTitle,
-  emptyDescription,
+  limit,
   currentUserId,
 }) => {
   const navigate = useNavigate();
@@ -522,38 +525,15 @@ export const CardsList: React.FC<CardsListProps> = ({
     }
   };
 
-  if (cards.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12 text-center space-y-6">
-        <img src="/logo.svg" alt="Felicito Logo" className="opacity-80 w-24 h-24" />
-        <div className="space-y-2">
-          <h2 className="text-2xl font-semibold text-gray-800">{emptyTitle}</h2>
-          <p className="text-gray-500 text-lg">{emptyDescription}</p>
-        </div>
-        <motion.button
-          onClick={() => navigate(createPath)}
-          className="px-6 py-3 text-lg sm:text-xl font-extrabold bg-black text-white rounded-xl shadow-xl w-full sm:w-auto"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          {createLabel}
-        </motion.button>
-      </div>
-    );
-  }
+  // The dashboard's ProductSection owns the empty state and the create button.
+  if (cards.length === 0) return null;
+
+  const visibleCards = limit ? cards.slice(0, limit) : cards;
 
   return (
     <div className="w-full">
-      <motion.button
-        onClick={() => navigate(createPath)}
-        className="mb-6 px-6 py-4 text-xl font-extrabold bg-black text-white rounded-xl shadow-xl w-full sm:w-auto"
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-      >
-        {createLabel}
-      </motion.button>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {cards.map((card: CardType) => (
+        {visibleCards.map((card: CardType) => (
           <CardWithImageLoader
             key={card.externalId}
             card={card}

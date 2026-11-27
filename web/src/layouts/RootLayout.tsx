@@ -4,6 +4,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SupportWidget from '@/pages/Support/SupportWidget';
 import { cn } from '@/lib/utils';
+import { HandDrawnFilter } from '@/components/doodles';
 
 /**
  * The header is `fixed`, so it takes up no space in the flow and every page has
@@ -42,13 +43,11 @@ const RootLayout: React.FC<Props> = ({ children }) => {
   return (
     <div
       className={cn(
-        'antialiased flex flex-col',
+        'paper-grain antialiased flex flex-col bg-background',
         fullBleed ? 'h-screen overflow-hidden' : 'min-h-screen'
       )}
-      style={{
-        fontFamily: "'Montserrat', sans-serif",
-      }}
     >
+      <HandDrawnFilter />
       <Header />
       {/*
         `min-h-0` lets a full-bleed page shrink to the space that is actually

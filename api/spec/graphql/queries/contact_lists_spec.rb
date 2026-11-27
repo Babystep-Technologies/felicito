@@ -18,7 +18,7 @@ RSpec.describe "Contact list queries", type: :request do
     let(:query) do
       <<~GRAPHQL
         query MyContactLists {
-          myContactLists { id name contactsCount mailableContactsCount createdAt updatedAt }
+          myContactLists { id name contactsCount createdAt updatedAt }
         }
       GRAPHQL
     end
@@ -33,14 +33,14 @@ RSpec.describe "Contact list queries", type: :request do
       expect(result.map { |l| l["name"] }).to eq([ "Family", "Work" ])
     end
 
-    it "reports both counts without being asked for the contacts" do
+    it "reports the count without being asked for the contacts" do
       list = create(:contact_list, user:, name: "Family")
       create(:contact_list_membership, contact_list: list, contact: create(:contact, user:))
-      create(:contact_list_membership, contact_list: list, contact: create(:contact, :mailable, user:))
+      create(:contact_list_membership, contact_list: list, contact: create(:contact, user:))
 
       result = exec(query).dig("data", "myContactLists").first
 
-      expect(result).to include("contactsCount" => 2, "mailableContactsCount" => 1)
+      expect(result).to include("contactsCount" => 2)
     end
 
     it "rejects an unauthenticated caller at the controller" do
@@ -67,8 +67,8 @@ RSpec.describe "Contact list queries", type: :request do
       <<~GRAPHQL
         query ContactList($id: ID!) {
           contactList(id: $id) {
-            id name contactsCount mailableContactsCount
-            contacts { id name mailable }
+            id name contactsCount
+            contacts { id name }
           }
         }
       GRAPHQL
@@ -77,13 +77,12 @@ RSpec.describe "Contact list queries", type: :request do
     it "returns the caller's own list with its contacts, alphabetically" do
       list = create(:contact_list, user:, name: "Family")
       create(:contact_list_membership, contact_list: list, contact: create(:contact, user:, name: "Zoe"))
-      create(:contact_list_membership, contact_list: list, contact: create(:contact, :mailable, user:, name: "Al"))
+      create(:contact_list_membership, contact_list: list, contact: create(:contact, user:, name: "Al"))
 
       result = exec(query, variables: { id: list.id }).dig("data", "contactList")
 
       expect(result["name"]).to eq("Family")
       expect(result["contacts"].map { |c| c["name"] }).to eq([ "Al", "Zoe" ])
-      expect(result["contacts"].map { |c| c["mailable"] }).to eq([ true, false ])
     end
 
     it "returns an empty contacts array for an empty list" do

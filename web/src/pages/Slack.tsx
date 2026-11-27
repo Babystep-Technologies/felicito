@@ -4,6 +4,7 @@ import * as motion from 'motion/react-client';
 import Reveal from '@/components/Reveal';
 import { slackInstallUrl, DEMO_VIDEO_URL, DEMO_VIDEO_POSTER } from '@/lib/slack';
 import {
+  ArrowDown,
   Slack as SlackIcon,
   Zap,
   Users,
@@ -11,6 +12,11 @@ import {
   ShieldCheck,
   Play,
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import ColorIconTile from '@/components/ColorIconTile';
+import { Bird, Grass, Hills, Sun, WavyEdge } from '@/components/doodles';
+
+import { TILE_COLORS } from '@/components/marketing';
 
 const AddToSlackButton: React.FC = () => (
   <a href={slackInstallUrl()} aria-label="Add Felicito to Slack">
@@ -85,7 +91,7 @@ const DemoVideo: React.FC<{ src: string }> = ({ src }) => {
 
   return (
     <div
-      className="relative aspect-[1728/1080] w-full rounded-3xl overflow-hidden shadow-xl border border-gray-200 bg-gray-900"
+      className="relative aspect-[1728/1080] w-full overflow-hidden rounded-3xl border-2 border-ink bg-ink shadow-pop-lg"
       onClick={start}
     >
       <video
@@ -105,8 +111,8 @@ const DemoVideo: React.FC<{ src: string }> = ({ src }) => {
           aria-label="Play the Felicito for Slack demo"
           className="absolute inset-0 flex items-center justify-center group cursor-pointer"
         >
-          <span className="flex items-center justify-center w-20 h-20 rounded-full bg-black/55 border border-white/30 backdrop-blur-sm transition-transform group-hover:scale-110">
-            <Play className="w-9 h-9 text-white fill-white translate-x-0.5" />
+          <span className="flex size-20 items-center justify-center rounded-full border-2 border-[#1d1b2f] bg-brand-yellow text-[#1d1b2f] shadow-[3px_3px_0_0_#1d1b2f] transition-transform group-hover:scale-110 motion-reduce:transform-none">
+            <Play className="size-9 translate-x-0.5 fill-current" />
           </span>
         </button>
       )}
@@ -115,25 +121,25 @@ const DemoVideo: React.FC<{ src: string }> = ({ src }) => {
 };
 
 const DemoPlaceholder: React.FC = () => (
-  <div className="relative aspect-video w-full rounded-3xl overflow-hidden shadow-xl border border-gray-200 bg-gray-900">
-    <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-center px-4">
-      <div className="flex items-center justify-center w-20 h-20 rounded-full bg-white/15 border border-white/30 backdrop-blur-sm mb-5">
-        <Play className="w-9 h-9 text-white translate-x-0.5" />
+  <div className="relative aspect-video w-full overflow-hidden rounded-3xl border-2 border-ink bg-brand-blue-soft shadow-pop-lg">
+    <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center text-[#1d1b2f]">
+      <div className="mb-5 flex size-20 items-center justify-center rounded-full border-2 border-[#1d1b2f] bg-brand-yellow">
+        <Play className="size-9 translate-x-0.5" />
       </div>
-      <p className="text-white text-lg font-semibold">Demo coming soon</p>
-      <p className="text-white/70 text-sm mt-1">We’re putting the finishing touches on it.</p>
+      <p className="text-lg font-semibold">Demo coming soon</p>
+      <p className="mt-1 text-sm opacity-75">We’re putting the finishing touches on it.</p>
     </div>
   </div>
 );
 
 const DemoSection: React.FC = () => (
-  <section id="demo" className="bg-gray-50 py-24 px-4 scroll-mt-20">
+  <section id="demo" className="scroll-mt-20 px-4 py-20 sm:py-28">
     <div className="max-w-4xl mx-auto">
       <Reveal>
-        <h2 className="text-gray-900 text-3xl md:text-5xl font-black text-center mb-4">
-          See it in action
+        <h2 className="mb-4 text-center text-4xl text-foreground md:text-5xl">
+          See it in <span className="marker-swipe">action</span>
         </h2>
-        <p className="text-gray-600 text-lg text-center mb-12 max-w-2xl mx-auto">
+        <p className="mx-auto mb-12 max-w-2xl text-center text-lg text-muted-foreground">
           Watch how a group card goes from <code className="font-mono">/felicito</code> to signed
           and sent — without anyone leaving Slack.
         </p>
@@ -166,24 +172,20 @@ const Slack: React.FC = () => {
   }, [location]);
 
   return (
-    <div className="flex flex-col w-full overflow-x-hidden">
+    // The negative bottom margin tucks the closing hills under the footer's wavy edge.
+    <div className="-mb-6 flex w-full flex-col overflow-x-hidden sm:-mb-10">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 min-h-[90vh] flex flex-col justify-center items-center px-4 py-[8vh] relative">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[var(--color-brand-blue)]/20 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[var(--color-brand-pink)]/20 rounded-full blur-3xl"></div>
-        </div>
-
+      <section className="relative flex min-h-[calc(80svh-4rem)] flex-col items-center justify-center overflow-hidden bg-brand-pink-soft px-4 pt-16 pb-44 text-[#1d1b2f] sm:pb-52">
         <Reveal>
           <div className="max-w-3xl mx-auto text-center relative z-10">
-            <span className="inline-flex items-center gap-2 text-white/80 text-sm font-semibold uppercase tracking-wide bg-white/10 border border-white/20 rounded-full px-4 py-1.5 mb-6">
+            <span className="mb-6 inline-flex items-center gap-2 rounded-full border-2 border-[#1d1b2f] bg-[#fff8ec] px-4 py-1.5 text-sm font-semibold shadow-[2px_2px_0_0_#1d1b2f]">
               <SlackIcon className="w-4 h-4" />
               Felicito for Slack
             </span>
-            <h1 className="text-white text-4xl md:text-6xl font-black leading-tight mb-6">
-              Group cards, right where your team already works
+            <h1 className="mb-6 text-5xl leading-[1.05] md:text-7xl">
+              Group cards, right where your team <span className="marker-swipe">already works</span>
             </h1>
-            <p className="text-white/80 text-lg md:text-2xl font-medium max-w-2xl mx-auto">
+            <p className="mx-auto max-w-2xl text-lg font-medium opacity-85 md:text-xl">
               Celebrate birthdays, farewells, promotions, and work anniversaries with a group card
               your whole team signs — all from a single <code className="font-mono">/felicito</code>{' '}
               command in Slack.
@@ -192,98 +194,129 @@ const Slack: React.FC = () => {
         </Reveal>
 
         <motion.div
-          className="mt-10 relative z-10 flex flex-col sm:flex-row items-center gap-4"
-          initial={{ opacity: 0, y: 20 }}
+          className="relative z-10 mt-10 flex flex-col items-center gap-4 sm:flex-row"
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.6 }}
+          transition={{ delay: 0.25, type: 'spring', stiffness: 220, damping: 18 }}
         >
           <AddToSlackButton />
-          <a
-            href="#how-it-works"
-            className="text-white/90 font-semibold underline-offset-4 hover:underline"
-          >
-            See how it works
-          </a>
+          <Button asChild size="lg" tone="paper">
+            <a href="#how-it-works">
+              See how it works
+              <ArrowDown />
+            </a>
+          </Button>
         </motion.div>
+
+        <div aria-hidden="true" className="absolute inset-x-0 bottom-0">
+          <Bird
+            className="animate-float absolute right-[16%] bottom-[60%] w-10 sm:w-14"
+            color="var(--color-brand-yellow)"
+          />
+          <Grass className="absolute bottom-[34%] left-[30%] w-8" />
+          <Hills className="h-32 sm:h-44" />
+        </div>
       </section>
 
       {/* Demo video */}
       <DemoSection />
 
       {/* Feature grid */}
-      <section className="bg-white py-24 px-4">
-        <div className="max-w-6xl mx-auto">
-          <Reveal>
-            <h2 className="text-gray-900 text-3xl md:text-5xl font-black text-center mb-16">
-              Everything you need to make someone’s day
-            </h2>
-          </Reveal>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {features.map(feature => (
-              <Reveal key={feature.title}>
-                <div className="h-full rounded-3xl border-2 border-gray-100 p-8 hover:shadow-xl transition-shadow">
+      <section className="text-brand-green">
+        <WavyEdge />
+        <div className="bg-brand-green px-4 py-20 text-[#1d1b2f] sm:py-24">
+          <div className="mx-auto max-w-6xl">
+            <Reveal>
+              <h2 className="mb-14 text-center text-4xl md:text-5xl">
+                Everything you need to make someone’s day
+              </h2>
+            </Reveal>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              {features.map((feature, i) => (
+                <Reveal key={feature.title} delay={i * 0.06} className="h-full">
                   <div
-                    className="flex items-center justify-center w-12 h-12 rounded-xl mb-5"
-                    style={{ backgroundColor: 'var(--color-brand-blue)' }}
+                    className={`pop-hover h-full border-2 border-[#1d1b2f] bg-[#fff8ec] p-7 shadow-[3px_3px_0_0_#1d1b2f] ${i % 2 ? 'hand-cut-alt' : 'hand-cut'}`}
                   >
-                    <feature.icon className="w-6 h-6 text-white" />
+                    <ColorIconTile
+                      icon={feature.icon}
+                      colorVar={TILE_COLORS[i % TILE_COLORS.length]}
+                      className="mb-5 size-12"
+                    />
+                    <h3 className="mb-2 text-2xl">{feature.title}</h3>
+                    <p className="leading-relaxed text-[#5f5a6e]">{feature.description}</p>
                   </div>
-                  <h3 className="text-gray-900 text-xl font-bold mb-2">{feature.title}</h3>
-                  <p className="text-gray-600 leading-relaxed">{feature.description}</p>
-                </div>
-              </Reveal>
-            ))}
+                </Reveal>
+              ))}
+            </div>
           </div>
         </div>
+        <WavyEdge flip />
       </section>
 
       {/* How it works */}
-      <section id="how-it-works" className="bg-gray-50 py-24 px-4 scroll-mt-20">
-        <div className="max-w-5xl mx-auto">
+      <section id="how-it-works" className="scroll-mt-20 px-4 py-20 sm:py-28">
+        <div className="mx-auto max-w-5xl">
           <Reveal>
-            <h2 className="text-gray-900 text-3xl md:text-5xl font-black text-center mb-16">
+            <h2 className="mb-14 text-center text-4xl text-foreground md:text-5xl">
               Three steps from install to celebration
             </h2>
           </Reveal>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <ol className="relative grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-8">
+            {/* A dashed, hand-drawn path linking the three steps on wide screens. */}
+            <div
+              aria-hidden="true"
+              className="absolute top-7 right-[16%] left-[16%] hidden border-t-2 border-dashed border-ink/40 md:block"
+            />
             {steps.map((step, index) => (
-              <Reveal key={step.label}>
-                <div className="text-center">
+              <Reveal key={step.label} delay={index * 0.1}>
+                <li className="relative text-center">
                   <div
-                    className="flex items-center justify-center w-14 h-14 rounded-full mx-auto mb-5 text-white text-xl font-black"
-                    style={{ backgroundColor: 'var(--color-brand-pink)' }}
+                    className="font-display mx-auto mb-5 flex size-14 items-center justify-center rounded-full border-2 border-[#1d1b2f] text-2xl text-[#1d1b2f] shadow-[3px_3px_0_0_#1d1b2f]"
+                    style={{ backgroundColor: TILE_COLORS[(index + 1) % TILE_COLORS.length] }}
                   >
                     {index + 1}
                   </div>
-                  <h3 className="text-gray-900 text-xl font-bold mb-2">{step.label}</h3>
-                  <p className="text-gray-600 leading-relaxed">{step.detail}</p>
-                </div>
+                  <h3 className="mb-2 text-2xl text-foreground">{step.label}</h3>
+                  <p className="leading-relaxed text-muted-foreground">{step.detail}</p>
+                </li>
               </Reveal>
             ))}
-          </div>
+          </ol>
         </div>
       </section>
 
       {/* Final CTA */}
-      <section className="bg-gradient-to-br from-purple-600 via-pink-500 to-blue-600 py-24 px-4">
-        <Reveal>
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-white text-3xl md:text-6xl font-black leading-tight mb-6">
+      <section className="relative overflow-hidden bg-brand-yellow px-4 pt-20 pb-40 text-[#1d1b2f] sm:pb-52">
+        <motion.div
+          aria-hidden="true"
+          className="pointer-events-none absolute bottom-24 left-[8%] w-20 sm:bottom-32 sm:left-[14%] sm:w-28"
+          initial={{ y: 80, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ type: 'spring', stiffness: 60, damping: 14 }}
+        >
+          <Sun />
+        </motion.div>
+        <Reveal className="relative z-10">
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="mb-5 text-4xl leading-tight md:text-6xl">
               Add Felicito to your workspace
             </h2>
-            <p className="text-white/90 text-lg md:text-2xl font-medium mb-10">
+            <p className="mb-10 text-lg font-medium md:text-xl">
               Free to install. Start celebrating your team in the next minute.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <AddToSlackButton />
-              <button
+              <Button
+                size="lg"
+                tone="paper"
+                className="w-full sm:w-auto"
                 onClick={() => navigate('/group-card/new')}
-                className="bg-white/15 text-white border border-white/40 rounded-2xl px-9 py-5 font-bold text-lg hover:bg-white/25 hover:scale-105 transition-all backdrop-blur-sm w-full sm:w-auto"
               >
                 Try a group card first
-              </button>
+              </Button>
             </div>
-            <p className="text-white/70 text-sm mt-8">
+            <p className="mt-8 text-sm opacity-75">
               By installing you agree to our{' '}
               <a href="/terms" className="underline underline-offset-4">
                 Terms
@@ -296,6 +329,7 @@ const Slack: React.FC = () => {
             </p>
           </div>
         </Reveal>
+        <Hills className="absolute inset-x-0 bottom-0 h-28 sm:h-40" />
       </section>
     </div>
   );
