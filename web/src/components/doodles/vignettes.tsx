@@ -1,4 +1,4 @@
-import { HAND_DRAWN_STYLE, PEN, type DoodleProps } from './shared';
+import { PEN, type DoodleProps } from './shared';
 
 /*
  * Small "everyday moment" scenes, one per product. They stand in for generic icons on
@@ -11,13 +11,7 @@ const Frame: React.FC<DoodleProps & { children: React.ReactNode }> = ({
   children,
   ...props
 }) => (
-  <svg
-    viewBox="0 0 160 120"
-    aria-hidden="true"
-    className={className}
-    {...props}
-    style={{ ...HAND_DRAWN_STYLE, ...props.style }}
-  >
+  <svg viewBox="0 0 160 120" aria-hidden="true" className={className} {...props}>
     {children}
   </svg>
 );
