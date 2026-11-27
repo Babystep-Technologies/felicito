@@ -79,7 +79,7 @@ export const products: Product[] = [
     route: '/invitation/new',
     icon: PartyPopper,
     description:
-      'Design animated invites your guests will love, with RSVP tracking and event details built right in.',
+      'Design animated invites with RSVPs built in, and link your registry so guests know what to bring.',
     colorVar: 'var(--color-brand-green)',
     softColorVar: 'var(--color-brand-green-soft)',
     tone: 'green',
@@ -95,7 +95,7 @@ export const products: Product[] = [
     route: '/registry/new',
     icon: Gift,
     description:
-      'Build a wish list for any occasion — birthday, wedding, baby — and let friends and family get you something you will love.',
+      'Build a wish list for any occasion — birthday, wedding, baby — and share it on its own or link it to your invitation.',
     colorVar: 'var(--color-brand-yellow)',
     softColorVar: 'var(--color-brand-yellow-soft)',
     tone: 'yellow',
