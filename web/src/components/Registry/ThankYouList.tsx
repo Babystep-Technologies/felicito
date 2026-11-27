@@ -74,7 +74,7 @@ export const ThankYouList: React.FC<Props> = ({ externalId }) => {
 
   if (!registry.thankYouUnlocked) {
     return (
-      <Card className="mt-6">
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Heart className="h-5 w-5 text-pink-500" />
@@ -105,7 +105,7 @@ export const ThankYouList: React.FC<Props> = ({ externalId }) => {
   };
 
   return (
-    <Card className="mt-6">
+    <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Heart className="h-5 w-5 text-pink-500" />

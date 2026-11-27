@@ -25,7 +25,7 @@ export const ShareQrCode: React.FC<{ externalId: string }> = ({ externalId }) =>
   const src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 
   return (
-    <Card className="mt-6">
+    <Card>
       <CardHeader>
         <CardTitle>Share with a QR code</CardTitle>
       </CardHeader>

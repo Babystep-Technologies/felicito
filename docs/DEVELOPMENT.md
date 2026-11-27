@@ -33,18 +33,6 @@ request was anonymous and sign-in appeared to succeed while silently doing nothi
 
 `credentials:edit` does not run initializers, so a missing secret is still fixable through it.
 
-### Return address
-
-`User` (via the `HasReturnAddress` concern) carries the user's own mailing address as six loose
-columns, `return_address_line1`/`_line2`/`_city`/`_region`/`_postal_code`/`_country_code`. The
-moment any field is set, line1/city/postal code/country are all required (`User#return_address_complete?`). Set it with
-`Mutations::UpdateReturnAddress`, surfaced as the "Return address" section of the profile page. In
-specs, `create(:user, :with_return_address)` gives a complete one.
-
-Nothing requires it. A registry owner can opt in to sharing it (`wish_lists.share_address`): a guest
-who holds a claim then sees it as "Ship it to" (`Types::WishListClaimType#ship_to`), and no one else
-does (#249).
-
 ### Inbound email (ActionMailbox)
 
 A customer's emailed reply to a support ticket threads back onto it through ActionMailbox

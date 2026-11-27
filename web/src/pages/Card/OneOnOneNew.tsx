@@ -3,13 +3,19 @@ import { gql, useMutation, useQuery } from '@apollo/client';
 import { GET_THANK_YOUS, SET_THANK_YOU_SENT } from '@/components/Registry/ThankYouList';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { format } from 'date-fns';
-import { Check, Copy, Heart, Mail, PenLine, Send, Sparkles, Upload, X } from 'lucide-react';
+import { Check, Copy, Heart, Mail, Send, Upload, X } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import {
+  ChoiceChips,
+  Field,
+  FormActions,
+  FormPage,
+  FormSection,
+  SwatchPicker,
+} from '@/components/form/FormKit';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
@@ -432,422 +438,306 @@ const CardOneOnOneNew: React.FC = () => {
     }
   };
 
-  const sectionHeading = (step: number, icon: React.ReactNode, label: string) => (
-    <h2 className="mb-4 flex items-center gap-2 text-xl font-bold">
-      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-purple-100 text-sm font-bold text-purple-700">
-        {step}
-      </span>
-      {icon}
-      {label}
-    </h2>
-  );
-
   return (
-    <div className="flex min-h-screen flex-grow flex-col bg-gradient-to-br from-yellow-50 via-pink-50 to-blue-50">
-      <div className="mx-auto mt-16 w-full max-w-full px-4 py-8 sm:max-w-[90%] xl:max-w-6xl">
-        <Toaster />
-
-        <div className="mb-8 text-center">
-          <h1 className="mb-3 text-4xl font-bold sm:text-5xl">Send a Card</h1>
-          <p className="text-lg text-gray-600">
-            Pick a design, write your message, send it. That&apos;s it.
+    <FormPage
+      product="one_on_one"
+      title="Send a 1-on-1 card"
+      subtitle="Pick a design, write your message, send it. That's it."
+      aside={
+        <div>
+          <p className="mb-3 text-center text-sm font-semibold text-muted-foreground">
+            Live preview
           </p>
+          <CardPreview
+            title={title}
+            recipient={recipient}
+            text={text}
+            displayName={displayName}
+            coverImage={coverImage}
+            backgroundColor={backgroundColor}
+            textColor={textColor}
+            effect={effect}
+          />
         </div>
+      }
+    >
+      <Toaster />
 
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
-          {/* ===== FORM ===== */}
-          <Card className="border-2 border-gray-200 bg-white/95 shadow-xl backdrop-blur">
-            <CardContent className="space-y-8 pt-6">
-              {/* --- 1. Design --- */}
-              <section>
-                {sectionHeading(1, <Sparkles className="h-5 w-5 text-purple-600" />, 'Design')}
+      <FormSection step={1} title="Design">
+        <Field label="Cover image" optional>
+          {coverImage ? (
+            <div className="relative w-full">
+              <img
+                src={coverImage instanceof Blob ? URL.createObjectURL(coverImage) : coverImage}
+                alt="Selected cover"
+                className="h-40 w-full rounded-xl border-2 border-ink object-cover"
+              />
+              <Button
+                type="button"
+                size="icon"
+                tone="paper"
+                className="absolute top-3 right-3"
+                onClick={() => setCoverImage(null)}
+                aria-label="Remove cover image"
+              >
+                <X />
+              </Button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setCoverDialogOpen(true)}
+              className="flex h-32 w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-ink bg-brand-blue-soft text-[#1d1b2f] transition-transform hover:-translate-y-0.5"
+            >
+              <Upload className="size-6" />
+              <span className="text-sm font-semibold">Add a cover image</span>
+            </button>
+          )}
+        </Field>
 
-                <div className="space-y-5">
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2 text-base font-semibold">
-                      <Upload className="h-4 w-4" />
-                      Cover Image (Optional)
-                    </Label>
-                    {coverImage ? (
-                      <div className="relative w-full">
-                        <img
-                          src={
-                            coverImage instanceof Blob
-                              ? URL.createObjectURL(coverImage)
-                              : coverImage
-                          }
-                          alt="Selected Cover"
-                          className="h-40 w-full rounded-xl border-4 border-white object-cover shadow-lg"
-                        />
-                        <button
-                          type="button"
-                          className="absolute top-3 right-3 rounded-full bg-white/90 p-2 shadow-lg transition-all hover:scale-110 hover:bg-white"
-                          onClick={() => setCoverImage(null)}
-                          aria-label="Remove cover image"
-                        >
-                          <X className="h-5 w-5 text-gray-700" />
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => setCoverDialogOpen(true)}
-                        className="group flex h-32 w-full flex-col items-center justify-center gap-2 rounded-xl border-4 border-dashed border-gray-300 transition-all hover:border-purple-400 hover:bg-purple-50/50"
-                      >
-                        <Upload className="h-8 w-8 text-gray-400 transition-colors group-hover:text-purple-500" />
-                        <span className="font-medium text-gray-500 transition-colors group-hover:text-purple-600">
-                          Click to add a cover image
-                        </span>
-                      </button>
-                    )}
-                  </div>
+        <Field label="Background color">
+          <SwatchPicker
+            ariaLabel="Background color"
+            swatches={backgroundColorStyles}
+            selectedId={selectedBackgroundColorId}
+            onSelect={setSelectedBackgroundColorId}
+          />
+        </Field>
 
-                  <div className="space-y-2">
-                    <Label className="text-base font-semibold">Background Color</Label>
-                    <div className="flex flex-wrap gap-3">
-                      {backgroundColorStyles.map((style: StyleType) => (
-                        <button
-                          key={style.id}
-                          type="button"
-                          onClick={() => setSelectedBackgroundColorId(style.id)}
-                          title={style.name}
-                          aria-label={style.name}
-                          className={`h-10 w-10 rounded-xl border-2 transition-all hover:scale-110 ${
-                            selectedBackgroundColorId === style.id
-                              ? 'scale-110 border-purple-500 ring-4 ring-purple-200'
-                              : 'border-gray-300 hover:border-purple-300'
-                          }`}
-                          style={{ backgroundColor: style.value }}
-                        />
-                      ))}
-                    </div>
-                  </div>
+        <Field label="Text color">
+          <SwatchPicker
+            ariaLabel="Text color"
+            swatches={textColorStyles}
+            selectedId={selectedTextColorId}
+            onSelect={setSelectedTextColorId}
+          />
+        </Field>
 
-                  <div className="space-y-2">
-                    <Label className="text-base font-semibold">Text Color</Label>
-                    <div className="flex flex-wrap gap-3">
-                      {textColorStyles.map((style: StyleType) => (
-                        <button
-                          key={style.id}
-                          type="button"
-                          onClick={() => setSelectedTextColorId(style.id)}
-                          title={style.name}
-                          aria-label={style.name}
-                          className={`h-10 w-10 rounded-xl border-2 transition-all hover:scale-110 ${
-                            selectedTextColorId === style.id
-                              ? 'scale-110 border-pink-500 ring-4 ring-pink-200'
-                              : 'border-gray-300 hover:border-pink-300'
-                          }`}
-                          style={{ backgroundColor: style.value }}
-                        />
-                      ))}
-                    </div>
-                  </div>
+        <Field label="Effect" hint="Plays when they open the card. Tap again to turn it off.">
+          <EffectPicker
+            styles={effectStyles}
+            selectedId={selectedEffectId}
+            onSelect={setSelectedEffectId}
+          />
+        </Field>
+      </FormSection>
 
-                  <div className="space-y-2">
-                    <Label className="text-base font-semibold">Effect</Label>
-                    <p className="text-sm text-gray-600">
-                      Plays when they open the card. Tap again to turn it off.
-                    </p>
-                    <EffectPicker
-                      styles={effectStyles}
-                      selectedId={selectedEffectId}
-                      onSelect={setSelectedEffectId}
-                    />
-                  </div>
-                </div>
-              </section>
+      <FormSection step={2} title="Message">
+        <Field label="To" htmlFor="recipient" required>
+          <Input
+            id="recipient"
+            placeholder="e.g., Sarah"
+            value={recipient}
+            onChange={e => setRecipient(e.target.value)}
+          />
+        </Field>
 
-              {/* --- 2. Message --- */}
-              <section className="border-t-2 border-gray-100 pt-6">
-                {sectionHeading(2, <PenLine className="h-5 w-5 text-pink-500" />, 'Message')}
+        <Field label="Occasion" optional>
+          <Select value={occasion} onValueChange={setOccasion}>
+            <SelectTrigger className="w-full sm:w-64">
+              <SelectValue placeholder="Pick one" />
+            </SelectTrigger>
+            <SelectContent>
+              {occasions.map((name: string) => (
+                <SelectItem key={name} value={name}>
+                  {name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
 
-                <div className="space-y-5">
-                  <div className="space-y-2">
-                    <Label htmlFor="recipient" className="text-base font-semibold">
-                      To <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="recipient"
-                      placeholder="e.g., Sarah"
-                      value={recipient}
-                      onChange={e => setRecipient(e.target.value)}
-                      className="border-2 transition-colors focus:border-purple-400"
-                    />
-                  </div>
+        <Field label="Card title" htmlFor="title" required>
+          <Input
+            id="title"
+            placeholder="e.g., Happy Birthday Sarah!"
+            value={title}
+            onChange={e => {
+              setTitleEdited(true);
+              setTitle(e.target.value);
+            }}
+          />
+        </Field>
 
-                  <div className="space-y-2">
-                    <Label className="text-base font-semibold">Occasion (Optional)</Label>
-                    <Select value={occasion} onValueChange={setOccasion}>
-                      <SelectTrigger className="border-2">
-                        <SelectValue placeholder="Select an Occasion" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {occasions.map((name: string) => (
-                          <SelectItem key={name} value={name}>
-                            {name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+        <Field label="Your message" htmlFor="text" required>
+          <Textarea
+            id="text"
+            placeholder="Write something heartfelt…"
+            value={text}
+            onChange={e => setText(e.target.value)}
+            rows={6}
+          />
+        </Field>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="title" className="text-base font-semibold">
-                      Card Title <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="title"
-                      placeholder="e.g., Happy Birthday Sarah!"
-                      value={title}
-                      onChange={e => {
-                        setTitleEdited(true);
-                        setTitle(e.target.value);
-                      }}
-                      className="border-2 text-lg transition-colors focus:border-purple-400"
-                    />
-                  </div>
+        <Field label="From" htmlFor="displayName" optional>
+          <Input
+            id="displayName"
+            placeholder="How you want to be signed"
+            value={displayName}
+            onChange={e => setDisplayName(e.target.value)}
+          />
+        </Field>
+      </FormSection>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="text" className="text-base font-semibold">
-                      Your Message <span className="text-red-500">*</span>
-                    </Label>
-                    <Textarea
-                      id="text"
-                      placeholder="Write something heartfelt…"
-                      value={text}
-                      onChange={e => setText(e.target.value)}
-                      rows={6}
-                      className="border-2 transition-colors focus:border-purple-400"
-                    />
-                  </div>
+      <FormSection
+        step={3}
+        title="Deliver"
+        description={
+          createdCard ? undefined : 'Create the card to get a shareable link and send it by email.'
+        }
+      >
+        {!createdCard ? (
+          <FormActions>
+            <Button type="button" variant="ghost" size="lg" onClick={() => navigate('/')}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateCard}
+              disabled={!isFormValid || creating}
+              tone={productById.one_on_one.tone}
+              size="lg"
+            >
+              {creating ? 'Creating…' : 'Create card'}
+            </Button>
+          </FormActions>
+        ) : (
+          <>
+            <Field label="Shareable link">
+              <div className="flex gap-2">
+                <Input readOnly value={shareUrl} className="text-sm" />
+                <Button variant="outline" onClick={handleCopyLink} className="shrink-0">
+                  {linkCopied ? <Check /> : <Copy />}
+                  {linkCopied ? 'Copied' : 'Copy'}
+                </Button>
+              </div>
+            </Field>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="displayName" className="text-base font-semibold">
-                      From (Optional)
-                    </Label>
-                    <Input
-                      id="displayName"
-                      placeholder="How you want to be signed"
-                      value={displayName}
-                      onChange={e => setDisplayName(e.target.value)}
-                      className="border-2 transition-colors focus:border-purple-400"
-                    />
-                  </div>
-                </div>
-              </section>
+            <Field label="Or send by email" htmlFor="recipientEmail">
+              <Input
+                id="recipientEmail"
+                type="email"
+                placeholder="sarah@example.com"
+                value={recipientEmail}
+                onChange={e => {
+                  setDelivered(false);
+                  setScheduled(false);
+                  setRecipientEmail(e.target.value);
+                }}
+              />
+            </Field>
 
-              {/* --- 3. Deliver --- */}
-              <section className="border-t-2 border-gray-100 pt-6">
-                {sectionHeading(3, <Send className="h-5 w-5 text-blue-500" />, 'Deliver')}
-
-                {!createdCard ? (
-                  <div className="space-y-4">
-                    <p className="text-sm text-gray-600">
-                      Create the card to get a shareable link and send it by email.
-                    </p>
-                    <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-                      <Button
-                        variant="outline"
-                        onClick={() => navigate('/')}
-                        className="h-14 w-full border-2 text-lg font-bold hover:border-gray-400 sm:w-auto"
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        onClick={handleCreateCard}
-                        disabled={!isFormValid || creating}
-                        tone={productById.one_on_one.tone}
-                        size="xl"
-                        className="h-14 w-full text-lg sm:w-auto"
-                      >
-                        {creating ? 'Creating…' : 'Create Card'}
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-5 rounded-2xl border-4 border-purple-300 bg-gradient-to-br from-purple-50 to-pink-50 p-6">
-                    <div className="space-y-2">
-                      <Label className="text-base font-semibold">Shareable link</Label>
-                      <div className="flex gap-2">
-                        <Input readOnly value={shareUrl} className="border-2 bg-white text-sm" />
-                        <Button
-                          variant="outline"
-                          onClick={handleCopyLink}
-                          className="shrink-0 gap-2 border-2 bg-white"
-                        >
-                          {linkCopied ? (
-                            <Check className="h-4 w-4 text-green-600" />
-                          ) : (
-                            <Copy className="h-4 w-4" />
-                          )}
-                          {linkCopied ? 'Copied' : 'Copy'}
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <Label htmlFor="recipientEmail" className="text-base font-semibold">
-                        Or send by email
-                      </Label>
-                      <Input
-                        id="recipientEmail"
-                        type="email"
-                        placeholder="sarah@example.com"
-                        value={recipientEmail}
-                        onChange={e => {
-                          setDelivered(false);
-                          setScheduled(false);
-                          setRecipientEmail(e.target.value);
-                        }}
-                        className="border-2 bg-white"
-                      />
-
-                      <div className="grid grid-cols-2 gap-2 rounded-xl bg-white/70 p-1">
-                        {(['now', 'schedule'] as const).map(mode => (
-                          <button
-                            key={mode}
-                            type="button"
-                            onClick={() => {
-                              setDeliveryMode(mode);
-                              setDelivered(false);
-                              setScheduled(false);
-                            }}
-                            className={`rounded-lg px-3 py-2 text-sm font-semibold transition-all ${
-                              deliveryMode === mode
-                                ? 'bg-blue-600 text-white shadow'
-                                : 'text-gray-600 hover:bg-white'
-                            }`}
-                          >
-                            {mode === 'now' ? 'Send now' : 'Schedule for a date'}
-                          </button>
-                        ))}
-                      </div>
-
-                      {isScheduling && (
-                        <div className="space-y-3 rounded-xl border-2 border-blue-200 bg-white p-4">
-                          <SchedulePicker
-                            date={scheduleDate}
-                            time={scheduleTime}
-                            timezone={scheduleTimezone}
-                            onDateChange={date => {
-                              setScheduled(false);
-                              setScheduleDate(date);
-                            }}
-                            onTimeChange={time => {
-                              setScheduled(false);
-                              setScheduleTime(time);
-                            }}
-                            onTimezoneChange={tz => {
-                              setScheduled(false);
-                              setScheduleTimezone(tz);
-                            }}
-                          />
-                          {deliverAtIso && scheduleReady && (
-                            <p
-                              className={`text-sm ${scheduleInPast ? 'text-red-600' : 'text-gray-600'}`}
-                            >
-                              {scheduleInPast
-                                ? 'Pick a time in the future.'
-                                : `Sends ${formatInTimezone(deliverAtIso, scheduleTimezone)}`}
-                            </p>
-                          )}
-                        </div>
-                      )}
-
-                      <Button
-                        onClick={handleDeliver}
-                        disabled={!canDeliver || delivering || delivered || scheduled}
-                        className="w-full shrink-0 gap-2 bg-blue-600 font-bold text-white hover:bg-blue-700"
-                      >
-                        {delivered || scheduled ? (
-                          <Check className="h-4 w-4" />
-                        ) : isScheduling ? (
-                          <Send className="h-4 w-4" />
-                        ) : (
-                          <Mail className="h-4 w-4" />
-                        )}
-                        {delivering
-                          ? isScheduling
-                            ? 'Scheduling…'
-                            : 'Sending…'
-                          : scheduled
-                            ? 'Scheduled'
-                            : delivered
-                              ? 'Sent'
-                              : isScheduling
-                                ? 'Schedule send'
-                                : 'Send'}
-                      </Button>
-                    </div>
-
-                    <Button
-                      variant="outline"
-                      onClick={() => navigate(`/card/${createdCard.externalId}/viewable`)}
-                      className="w-full gap-2 border-2 bg-white font-bold"
-                    >
-                      <Heart className="h-4 w-4 text-pink-500" />
-                      View the card
-                    </Button>
-                  </div>
-                )}
-              </section>
-            </CardContent>
-          </Card>
-
-          {/* ===== LIVE PREVIEW ===== */}
-          <div className="lg:sticky lg:top-24 lg:self-start">
-            <p className="mb-3 text-center text-sm font-semibold text-gray-500">Live preview</p>
-            <CardPreview
-              title={title}
-              recipient={recipient}
-              text={text}
-              displayName={displayName}
-              coverImage={coverImage}
-              backgroundColor={backgroundColor}
-              textColor={textColor}
-              effect={effect}
+            <ChoiceChips
+              ariaLabel="When to send"
+              options={[
+                { value: 'now' as const, label: 'Send now' },
+                { value: 'schedule' as const, label: 'Schedule for a date' },
+              ]}
+              value={deliveryMode}
+              onChange={mode => {
+                setDeliveryMode(mode);
+                setDelivered(false);
+                setScheduled(false);
+              }}
             />
-          </div>
-        </div>
 
-        <CoverImageDialog
-          open={coverDialogOpen}
-          onOpenChange={setCoverDialogOpen}
-          onSelectCover={cover => {
-            setCoverImage(cover);
-            setCoverDialogOpen(false);
-          }}
-        />
+            {isScheduling && (
+              <div className="space-y-3 rounded-xl border-2 border-ink bg-brand-blue-soft p-4 text-[#1d1b2f]">
+                <SchedulePicker
+                  date={scheduleDate}
+                  time={scheduleTime}
+                  timezone={scheduleTimezone}
+                  onDateChange={date => {
+                    setScheduled(false);
+                    setScheduleDate(date);
+                  }}
+                  onTimeChange={time => {
+                    setScheduled(false);
+                    setScheduleTime(time);
+                  }}
+                  onTimezoneChange={tz => {
+                    setScheduled(false);
+                    setScheduleTimezone(tz);
+                  }}
+                />
+                {deliverAtIso && scheduleReady && (
+                  <p className={`text-sm ${scheduleInPast ? 'text-destructive' : ''}`}>
+                    {scheduleInPast
+                      ? 'Pick a time in the future.'
+                      : `Sends ${formatInTimezone(deliverAtIso, scheduleTimezone)}`}
+                  </p>
+                )}
+              </div>
+            )}
 
-        <Dialog open={signInDialogOpen} onOpenChange={setSignInDialogOpen}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Sign In Required</DialogTitle>
-              <DialogDescription>You need to sign in to create a card.</DialogDescription>
-            </DialogHeader>
-            <DialogFooter className="flex-col gap-2 sm:flex-row">
+            <FormActions>
               <Button
                 variant="outline"
-                onClick={() => setSignInDialogOpen(false)}
-                className="w-full sm:w-auto"
+                size="lg"
+                onClick={() => navigate(`/card/${createdCard.externalId}/viewable`)}
               >
-                Cancel
+                <Heart />
+                View the card
               </Button>
               <Button
-                onClick={() => {
-                  const currentUrl = window.location.pathname + window.location.search;
-                  window.location.href = `/sign_in?redirect=${encodeURIComponent(currentUrl)}`;
-                }}
-                className="w-full sm:w-auto"
+                onClick={handleDeliver}
+                disabled={!canDeliver || delivering || delivered || scheduled}
+                tone={productById.one_on_one.tone}
+                size="lg"
               >
-                Sign In
+                {delivered || scheduled ? <Check /> : isScheduling ? <Send /> : <Mail />}
+                {delivering
+                  ? isScheduling
+                    ? 'Scheduling…'
+                    : 'Sending…'
+                  : scheduled
+                    ? 'Scheduled'
+                    : delivered
+                      ? 'Sent'
+                      : isScheduling
+                        ? 'Schedule send'
+                        : 'Send'}
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </div>
+            </FormActions>
+          </>
+        )}
+      </FormSection>
+
+      <CoverImageDialog
+        open={coverDialogOpen}
+        onOpenChange={setCoverDialogOpen}
+        onSelectCover={cover => {
+          setCoverImage(cover);
+          setCoverDialogOpen(false);
+        }}
+      />
+
+      <Dialog open={signInDialogOpen} onOpenChange={setSignInDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Sign in required</DialogTitle>
+            <DialogDescription>You need to sign in to create a card.</DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col gap-2 sm:flex-row">
+            <Button
+              variant="outline"
+              onClick={() => setSignInDialogOpen(false)}
+              className="w-full sm:w-auto"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                const currentUrl = window.location.pathname + window.location.search;
+                window.location.href = `/sign_in?redirect=${encodeURIComponent(currentUrl)}`;
+              }}
+              className="w-full sm:w-auto"
+            >
+              Sign in
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </FormPage>
   );
 };
 

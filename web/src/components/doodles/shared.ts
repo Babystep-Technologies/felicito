@@ -13,5 +13,3 @@ export const PEN = {
   strokeLinecap: 'round' as const,
   strokeLinejoin: 'round' as const,
 };
-
-export const HAND_DRAWN_STYLE = { filter: 'url(#hand-drawn)' };
