@@ -5,7 +5,6 @@ import {
   ArrowRight,
   Building2,
   CalendarCheck,
-  Check,
   Gift,
   Github,
   Heart,
@@ -55,13 +54,13 @@ const featuresByProduct: Record<ProductId, Feature[]> = {
   ],
   invitation: [
     { icon: PartyPopper, text: 'An opening screen guests remember' },
-    { icon: Check, text: 'Built-in RSVP tracking' },
-    { icon: CalendarCheck, text: 'One-tap add to calendar' },
+    { icon: CalendarCheck, text: 'RSVPs and add-to-calendar built in' },
+    { icon: Gift, text: 'Link your registry so guests know what to bring' },
   ],
   registry: [
     { icon: Link2, text: 'Add gifts from any store — just paste a link' },
-    { icon: Gift, text: 'No duplicate gifts — items are claimed as they go' },
-    { icon: Users, text: 'Guests need no account' },
+    { icon: Gift, text: 'No duplicate gifts, and guests need no account' },
+    { icon: Send, text: 'Share it on its own, or link it to your invitation' },
   ],
 };
 
