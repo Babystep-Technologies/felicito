@@ -13,7 +13,7 @@ import { useOrganization } from '@/contexts/OrganizationContext';
 import { APP_TOKEN_KEY } from '@/lib/constants';
 import { isInsufficientCreditsError, INSUFFICIENT_CREDITS_REDIRECT } from '@/lib/credits';
 import { StyleType } from '@/types/app';
-import { cardTypeById } from '@/config/cardTypes';
+import { productById } from '@/config/products';
 import { X, Sparkles, Upload, Users, Heart, Palette } from 'lucide-react';
 import {
   Select,
@@ -281,11 +281,7 @@ const CardNew: React.FC = () => {
 
         {/* Fun Header */}
         <div className="text-center mb-8">
-          <h1
-            className={`text-4xl sm:text-5xl font-bold mb-3 bg-gradient-to-r ${cardTypeById.group.gradient} bg-clip-text text-transparent`}
-          >
-            Create Your Group Card
-          </h1>
+          <h1 className="text-4xl sm:text-5xl font-bold mb-3">Create Your Group Card</h1>
           <p className="text-gray-600 text-lg">
             Collect heartfelt messages from everyone who cares
           </p>
@@ -590,7 +586,9 @@ const CardNew: React.FC = () => {
               <Button
                 onClick={handleCreateCard}
                 disabled={!isFormValid || creating}
-                className={`w-full sm:w-auto bg-gradient-to-r ${cardTypeById.group.gradient} hover:opacity-90 text-white font-bold text-lg h-14 shadow-lg hover:shadow-xl transition-all`}
+                tone={productById.group.tone}
+                size="xl"
+                className="w-full sm:w-auto text-lg h-14"
               >
                 {creating ? 'Creating...' : 'Create Card'}
               </Button>

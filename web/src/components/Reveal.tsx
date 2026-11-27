@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import * as motion from 'motion/react-client';
+import { useReducedMotion } from 'motion/react';
 
 interface RevealProps {
   children: React.ReactNode;
@@ -17,6 +18,7 @@ const Reveal: React.FC<RevealProps> = ({
   once = true,
 }) => {
   const ref = useRef<HTMLDivElement | null>(null);
+  const reduceMotion = useReducedMotion();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -44,12 +46,16 @@ const Reveal: React.FC<RevealProps> = ({
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 40 }}
-      animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+      // A soft, springy pop: rises a little, overshoots a touch, settles.
+      initial={reduceMotion ? false : { opacity: 0, y: 28, scale: 0.98 }}
+      animate={isVisible || reduceMotion ? { opacity: 1, y: 0, scale: 1 } : undefined}
       transition={{
-        duration,
+        type: 'spring',
+        stiffness: 170,
+        damping: 18,
+        mass: 0.9,
         delay,
-        ease: [0.33, 1, 0.68, 1],
+        opacity: { duration: duration * 0.6, delay },
       }}
       className={className}
     >

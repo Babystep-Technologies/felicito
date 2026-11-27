@@ -9,7 +9,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { cardTypes } from '@/config/cardTypes';
+import { products } from '@/config/products';
+import ProductVignette from '@/components/ProductVignette';
 
 interface IntentPickerDialogProps {
   // The single CTA button that opens the picker.
@@ -33,61 +34,37 @@ export const IntentPickerDialog: React.FC<IntentPickerDialogProps> = ({ children
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="bg-paper sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-black text-gray-900">
-            What do you want to do?
-          </DialogTitle>
-          <DialogDescription>
-            Pick your moment and we&apos;ll set up the right card.
+          <DialogTitle className="text-3xl">What are we making?</DialogTitle>
+          <DialogDescription className="text-base">
+            Pick the moment you have in mind and we&apos;ll set you up with the right thing.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="mt-2 flex flex-col gap-3">
-          {cardTypes.map(type => {
-            const inner = (
-              <>
-                <div
-                  className={`shrink-0 flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br ${type.gradient}`}
-                >
-                  <type.icon className="w-5 h-5 text-white" />
-                </div>
-                <div className="flex-1 text-left">
-                  <div className="flex items-center gap-2 font-bold text-gray-900">
-                    {type.intent}
-                    {type.comingSoon && (
-                      <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 border border-gray-200 rounded-full px-1.5 py-0.5">
-                        Soon
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-sm text-gray-500">{type.label}</div>
-                </div>
-                {!type.comingSoon && <ArrowRight className="w-5 h-5 shrink-0 text-gray-400" />}
-              </>
-            );
-
-            if (type.comingSoon) {
-              return (
-                <div
-                  key={type.id}
-                  className="flex items-center gap-3 rounded-2xl border-2 border-gray-100 p-3 opacity-60"
-                >
-                  {inner}
-                </div>
-              );
-            }
-
-            return (
-              <button
-                key={type.id}
-                onClick={() => handlePick(type.route)}
-                className="flex items-center gap-3 rounded-2xl border-2 border-gray-100 p-3 transition-all hover:border-gray-300 hover:bg-gray-50"
-              >
-                {inner}
-              </button>
-            );
-          })}
+        <div className="mt-2 grid grid-cols-2 gap-3">
+          {products.map((product, i) => (
+            <button
+              key={product.id}
+              onClick={() => handlePick(product.route)}
+              className={`pop-hover animate-pop-in group flex flex-col items-start gap-1 border-2 border-ink p-3 text-left text-[#1d1b2f] shadow-pop ${i % 2 ? 'hand-cut-alt' : 'hand-cut'}`}
+              style={{ backgroundColor: product.colorVar, animationDelay: `${i * 60}ms` }}
+            >
+              <span className="flex w-full justify-center rounded-xl border-2 border-ink bg-[#fff8ec] py-1">
+                <ProductVignette
+                  product={product.id}
+                  className="h-16 w-auto transition-transform duration-300 group-hover:-rotate-3 group-hover:scale-105 motion-reduce:transform-none sm:h-20"
+                />
+              </span>
+              <span className="mt-1 font-display text-base leading-tight sm:text-lg">
+                {product.intent}
+              </span>
+              <span className="flex items-center gap-1 text-xs font-semibold opacity-80">
+                {product.label}
+                <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
+              </span>
+            </button>
+          ))}
         </div>
       </DialogContent>
     </Dialog>

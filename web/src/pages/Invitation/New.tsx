@@ -21,7 +21,7 @@ import { isInsufficientCreditsError, INSUFFICIENT_CREDITS_REDIRECT } from '@/lib
 import CoverImageDialog from '../Card/components/CoverImageDialog';
 import { OpeningMessageEditor } from './components/OpeningMessageEditor';
 import type { OpeningMessageConfig } from '@/types/openingMessage';
-import { cardTypeById } from '@/config/cardTypes';
+import { productById } from '@/config/products';
 import {
   Dialog,
   DialogContent,
@@ -258,11 +258,7 @@ const InvitationNew: React.FC = () => {
 
         {/* Fun Header */}
         <div className="text-center mb-8">
-          <h1
-            className={`text-4xl sm:text-5xl font-bold mb-3 bg-gradient-to-r ${cardTypeById.invitation.gradient} bg-clip-text text-transparent`}
-          >
-            Create Your Invitation
-          </h1>
+          <h1 className="text-4xl sm:text-5xl font-bold mb-3">Create Your Invitation</h1>
           <p className="text-gray-600 text-lg">
             Make it unforgettable! Design an invitation your friends will love
           </p>
@@ -339,7 +335,7 @@ const InvitationNew: React.FC = () => {
                 <Button
                   type="button"
                   onClick={() => setOpeningEditorOpen(true)}
-                  className={`bg-gradient-to-r ${cardTypeById.invitation.gradient} hover:opacity-90 text-white shadow-md`}
+                  tone={productById.invitation.tone}
                 >
                   {openingMessageConfig ? 'Edit' : 'Customize'}
                 </Button>
@@ -615,7 +611,9 @@ const InvitationNew: React.FC = () => {
               <Button
                 onClick={handleCreateInvitation}
                 disabled={!isFormValid || creating}
-                className={`w-full sm:w-auto bg-gradient-to-r ${cardTypeById.invitation.gradient} hover:opacity-90 text-white font-bold text-lg h-14 shadow-lg hover:shadow-xl transition-all`}
+                tone={productById.invitation.tone}
+                size="xl"
+                className="w-full sm:w-auto text-lg h-14"
               >
                 {creating ? 'Creating...' : 'Create Invitation'}
               </Button>

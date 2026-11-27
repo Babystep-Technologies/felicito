@@ -22,7 +22,7 @@ import EditCardSettings from './components/EditCardSettings';
 import CardOneOnOneEdit from './OneOnOneEdit';
 import { APP_TOKEN_KEY } from '@/lib/constants';
 import { getGuestMessageIdKey } from '@/lib/utils';
-import { cardTypeById } from '@/config/cardTypes';
+import { productById } from '@/config/products';
 
 const GET_CARD_KIND = gql`
   query CardKind($cardId: ID!) {
@@ -505,7 +505,7 @@ function PageEdit() {
             {isCreator && !editingSettings ? (
               <>
                 <h1
-                  className={`text-3xl font-bold cursor-pointer hover:underline transition bg-gradient-to-r ${cardTypeById.group.gradient} bg-clip-text text-transparent hover:opacity-90`}
+                  className="text-3xl font-bold cursor-pointer hover:underline transition hover:opacity-90"
                   onClick={() => navigate(`/card/${cardExternalId}/editable`)}
                 >
                   {cardTitle}
@@ -555,7 +555,7 @@ function PageEdit() {
               />
             ) : (
               <h1
-                className={`text-3xl font-bold cursor-pointer hover:underline transition bg-gradient-to-r ${cardTypeById.group.gradient} bg-clip-text text-transparent hover:opacity-90`}
+                className="text-3xl font-bold cursor-pointer hover:underline transition hover:opacity-90"
                 onClick={() => navigate(`/card/${cardExternalId}/editable`)}
               >
                 {cardTitle}
@@ -642,7 +642,9 @@ function PageEdit() {
                     type="submit"
                     disabled={!isCardMessageValid || submitting}
                     onClick={handleUpsertMessage}
-                    className={`w-full sm:w-auto bg-gradient-to-r ${cardTypeById.group.gradient} hover:opacity-90 text-white font-bold text-lg py-6 px-8 shadow-lg hover:shadow-xl transition-all`}
+                    tone={productById.group.tone}
+                    size="xl"
+                    className="w-full sm:w-auto text-lg py-6 px-8"
                   >
                     {submitting ? 'Submitting...' : 'Submit Message'}
                   </Button>

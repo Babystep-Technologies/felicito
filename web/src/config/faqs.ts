@@ -9,7 +9,7 @@ export const faqs: Faq[] = [
   {
     question: 'What is Felicito?',
     answer:
-      'Felicito is an open-source platform for creating digital group cards and event invitations. Collect heartfelt messages on a shareable group card, or design an animated invitation with built-in RSVP tracking. No subscriptions, no hidden fees!',
+      'Felicito is an open-source place to make things for the people you celebrate: group cards everyone signs, 1-on-1 cards for one special person, animated invitations with built-in RSVP tracking, and wish-list registries. No subscriptions, no hidden fees!',
   },
   {
     question: 'How much does it cost?',

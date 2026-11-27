@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { gql, useMutation, ApolloError } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
-import { Building2, LoaderCircle } from 'lucide-react';
+import { Building2, LoaderCircle, Plus } from 'lucide-react';
 import * as motion from 'motion/react-client';
 import withAuth from '@/lib/with-auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import ColorIconTile from '@/components/ColorIconTile';
+import { Bird, Hills } from '@/components/doodles';
 import { useOrganization } from '@/contexts/OrganizationContext';
 
 const CREATE_ORGANIZATION = gql`
@@ -62,24 +64,33 @@ const OrganizationNew: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start px-4 pt-20 pb-12">
+    <div className="relative -mb-6 flex min-h-[calc(100svh-4rem)] flex-col items-center overflow-x-hidden px-4 pt-14 pb-40 sm:-mb-10 sm:pt-20">
       <motion.div
-        className="w-full max-w-md space-y-8"
-        initial={{ opacity: 0, y: 12 }}
+        className="relative z-10 w-full max-w-md"
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ type: 'spring', stiffness: 220, damping: 20 }}
       >
-        <div className="space-y-3 text-center">
+        <div className="mb-8 space-y-3 text-center">
           <div className="flex justify-center">
-            <Building2 className="w-10 h-10 text-gray-900" />
+            <ColorIconTile
+              icon={Building2}
+              colorVar="var(--color-brand-blue)"
+              className="size-14 [&_svg]:size-7"
+            />
           </div>
-          <h1 className="text-3xl font-bold text-black">Create an organization</h1>
-          <p className="text-gray-600">
-            Share credits, cards, and branding with your team. You'll be its first admin.
+          <h1 className="text-4xl text-foreground">
+            Create an <span className="marker-swipe">organization</span>
+          </h1>
+          <p className="text-muted-foreground">
+            Share credits, cards, and branding with your team. You&apos;ll be its first admin.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form
+          onSubmit={handleSubmit}
+          className="hand-cut space-y-5 border-2 border-ink bg-card p-6 shadow-pop sm:p-8"
+        >
           <div className="space-y-2">
             <Label htmlFor="organization-name">Name</Label>
             <Input
@@ -104,24 +115,38 @@ const OrganizationNew: React.FC = () => {
           </div>
 
           {errors.length > 0 && (
-            <ul className="space-y-1 text-sm font-medium text-red-600">
+            <ul className="space-y-1 text-sm font-medium text-destructive">
               {errors.map(error => (
                 <li key={error}>{error}</li>
               ))}
             </ul>
           )}
 
-          <div className="flex items-center gap-3">
-            <Button type="submit" disabled={submitting || name.trim() === ''}>
-              {submitting && <LoaderCircle className="h-4 w-4 animate-spin" />}
-              {submitting ? 'Creating...' : 'Create organization'}
-            </Button>
+          <div className="flex flex-col-reverse gap-3 pt-1 sm:flex-row sm:items-center">
             <Button type="button" variant="ghost" onClick={() => navigate(-1)}>
               Cancel
+            </Button>
+            <Button
+              type="submit"
+              size="lg"
+              tone="blue"
+              className="sm:ml-auto"
+              disabled={submitting || name.trim() === ''}
+            >
+              {submitting ? <LoaderCircle className="animate-spin" /> : <Plus />}
+              {submitting ? 'Creating…' : 'Create organization'}
             </Button>
           </div>
         </form>
       </motion.div>
+
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0">
+        <Bird
+          className="animate-float absolute right-[18%] bottom-[70%] w-10"
+          color="var(--color-brand-pink)"
+        />
+        <Hills className="h-24 sm:h-32" />
+      </div>
     </div>
   );
 };

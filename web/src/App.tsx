@@ -30,22 +30,11 @@ import ForBusiness from '@/pages/ForBusiness';
 import ClientOccasions from '@/pages/ClientOccasions';
 import ConnectSlack from '@/pages/ConnectSlack';
 import Slack from '@/pages/Slack';
-import Occasions from '@/pages/Occasions';
 import OrganizationNew from '@/pages/Organization/New';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import Disclaimer from './pages/Disclaimer';
 import UserPolicy from './pages/UserPolicy';
-import {
-  EventLandingPage,
-  valentinesDayConfig,
-  birthdayConfig,
-  weddingConfig,
-  babyShowerConfig,
-  graduationConfig,
-  newJobConfig,
-  jobFarewellConfig,
-} from './pages/events';
 
 // Organization pages nobody hits on first paint, so they are code-split rather than carried in the
 // initial bundle — which also keeps that bundle under the 2 MiB the PWA plugin will precache (the
@@ -250,23 +239,14 @@ const App: React.FC = () => {
           <Route path="/invitation/:id/edit" element={<InvitationEdit />} />
           <Route path="/invitation/:id/wishlist" element={<InvitationWishListRedirect />} />
 
-          <Route
-            path="/for/valentines-day"
-            element={<EventLandingPage config={valentinesDayConfig} />}
-          />
-          <Route path="/for/birthday" element={<EventLandingPage config={birthdayConfig} />} />
-          <Route path="/for/wedding" element={<EventLandingPage config={weddingConfig} />} />
-          <Route path="/for/baby-shower" element={<EventLandingPage config={babyShowerConfig} />} />
-          <Route path="/for/graduation" element={<EventLandingPage config={graduationConfig} />} />
-          <Route path="/for/new-job" element={<EventLandingPage config={newJobConfig} />} />
-          <Route
-            path="/for/job-farewell"
-            element={<EventLandingPage config={jobFarewellConfig} />}
-          />
+          {/* The per-occasion landing pages and the /occasions directory were group-card-only
+              marketing; they were retired once Felicito covered invitations and registries too.
+              Old links land on the home page instead of a 404. */}
+          <Route path="/for/*" element={<LegacyRedirect to="/" />} />
+          <Route path="/occasions" element={<LegacyRedirect to="/" />} />
 
           <Route path="/slack" element={<Slack />} />
           <Route path="/connect-slack" element={<ConnectSlack />} />
-          <Route path="/occasions" element={<Occasions />} />
           <Route path="/for-business" element={<ForBusiness />} />
           <Route path="/client-occasions" element={<ClientOccasions />} />
           {/* `/for-teams` was the business page before it covered both use cases. */}

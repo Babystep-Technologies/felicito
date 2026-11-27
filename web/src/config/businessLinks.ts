@@ -1,7 +1,7 @@
 import { Building2, CalendarClock, MessageSquare, type LucideIcon } from 'lucide-react';
 
 // Business-audience entries shown in the "Business" nav dropdown (desktop + mobile).
-// Parallel to `cardTypes` for the Personal menu — copy and routes live here, not in JSX.
+// Parallel to `products` for the Personal menu — copy and routes live here, not in JSX.
 //
 // Felicito serves two business use cases and the menu is shaped around them: group cards
 // a team starts from Slack, and a contact book that reminds an owner before a client's
@@ -13,8 +13,8 @@ export interface BusinessLink {
   description: string;
   route: string;
   icon: LucideIcon;
-  // Tailwind gradient stops for the icon tile, matching the ProductMenu tile treatment.
-  gradient: string;
+  // Solid fill for the icon tile, matching the ProductMenu tile treatment.
+  colorVar: string;
 }
 
 export const businessLinks: BusinessLink[] = [
@@ -24,7 +24,7 @@ export const businessLinks: BusinessLink[] = [
     description: 'Start a card with /felicito and let the whole team sign it.',
     route: '/slack',
     icon: MessageSquare,
-    gradient: 'from-[var(--color-brand-pink)] to-[var(--color-brand-blue)]',
+    colorVar: 'var(--color-brand-pink)',
   },
   {
     id: 'client-occasions',
@@ -32,7 +32,7 @@ export const businessLinks: BusinessLink[] = [
     description: 'Keep your clients’ dates and get an email a week before each one.',
     route: '/client-occasions',
     icon: CalendarClock,
-    gradient: 'from-[var(--color-brand-green)] to-[var(--color-brand-yellow)]',
+    colorVar: 'var(--color-brand-green)',
   },
   {
     id: 'for-business',
@@ -40,6 +40,6 @@ export const businessLinks: BusinessLink[] = [
     description: 'Both use cases, and which one fits your business.',
     route: '/for-business',
     icon: Building2,
-    gradient: 'from-[var(--color-brand-blue)] to-[var(--color-brand-green)]',
+    colorVar: 'var(--color-brand-blue)',
   },
 ];

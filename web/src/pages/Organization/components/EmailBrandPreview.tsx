@@ -66,8 +66,14 @@ const EmailBrandPreview: React.FC<EmailBrandPreviewProps> = ({
         </div>
 
         <div className="mx-4 mb-6 rounded-xl bg-white p-6 text-[#2b2c4b] shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
-          {/* `h3` picks up Source Serif 4 from index.css, the same face the mailer layout uses. */}
-          <h3 className="text-xl font-bold">You've been invited to sign a card</h3>
+          {/* Pinned to Source Serif 4, the same face the mailer layout uses — the app's own
+              heading face (Fraunces) would misrepresent the email. */}
+          <h3
+            className="text-xl font-bold"
+            style={{ fontFamily: "'Source Serif 4', serif", fontVariationSettings: 'normal' }}
+          >
+            You've been invited to sign a card
+          </h3>
           <p className="mt-2 text-sm">
             {organizationName || 'Your organization'} is putting together a card for Jordan. Add
             your message before it's sent.

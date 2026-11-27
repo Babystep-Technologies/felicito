@@ -33,7 +33,7 @@ import RSVPManagement from './components/RSVPManagement';
 import RemindGuests from './components/RemindGuests';
 import InvitationRegistryLink from './components/InvitationRegistryLink';
 import type { OpeningMessageConfig } from '@/types/openingMessage';
-import { cardTypeById } from '@/config/cardTypes';
+import { productById } from '@/config/products';
 import LoadingScreen from '@/components/Loading';
 
 const GET_INVITATION = gql`
@@ -494,11 +494,7 @@ const InvitationEdit: React.FC = () => {
 
         {/* Header */}
         <div className="text-center mb-8">
-          <h1
-            className={`text-4xl sm:text-5xl font-bold mb-3 bg-gradient-to-r ${cardTypeById.invitation.gradient} bg-clip-text text-transparent`}
-          >
-            Edit Invitation
-          </h1>
+          <h1 className="text-4xl sm:text-5xl font-bold mb-3">Edit Invitation</h1>
           <p className="text-gray-600 text-lg">Make changes to your event details</p>
         </div>
 
@@ -573,7 +569,7 @@ const InvitationEdit: React.FC = () => {
                 <Button
                   type="button"
                   onClick={() => setOpeningEditorOpen(true)}
-                  className={`bg-gradient-to-r ${cardTypeById.invitation.gradient} hover:opacity-90 text-white shadow-md`}
+                  tone={productById.invitation.tone}
                 >
                   {openingMessageConfig ? 'Edit' : 'Customize'}
                 </Button>
@@ -892,7 +888,9 @@ const InvitationEdit: React.FC = () => {
               <Button
                 onClick={handleSave}
                 disabled={saving || !!slugError || slugChecking}
-                className={`w-full sm:w-auto bg-gradient-to-r ${cardTypeById.invitation.gradient} hover:opacity-90 text-white font-bold text-lg h-14 shadow-lg hover:shadow-xl transition-all disabled:opacity-50`}
+                tone={productById.invitation.tone}
+                size="xl"
+                className="w-full sm:w-auto text-lg h-14"
               >
                 {saving ? 'Saving...' : 'Save Changes'}
               </Button>

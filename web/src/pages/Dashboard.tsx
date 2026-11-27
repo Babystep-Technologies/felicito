@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { CardKind, CardType } from '@/types/app';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrganization } from '@/contexts/OrganizationContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import LoadingScreen from '@/components/Loading';
 import ErrorScreen from '@/components/Error';
 import { Toaster, toast } from 'sonner';
@@ -16,6 +15,15 @@ import ShareDialog from '@/components/ShareDialog';
 import { CardsList } from '@/components/Dashboard/CardsList';
 import { InvitationsList } from '@/components/Dashboard/InvitationsList';
 import { RegistriesList, type DashboardRegistry } from '@/components/Dashboard/RegistriesList';
+import {
+  DashboardMobileBar,
+  DashboardSidebar,
+  type SidebarItem,
+} from '@/components/Dashboard/DashboardSidebar';
+import ProductSection from '@/components/Dashboard/ProductSection';
+import CreateProductButton from '@/components/CreateProductButton';
+import { Hills, Sun } from '@/components/doodles';
+import { productById, products, type ProductId } from '@/config/products';
 
 // `organizationId` is the context: null lists the signed-in user's personal cards,
 // an id lists everything that organization owns — including cards other members made.
@@ -103,52 +111,60 @@ const DELETE_CARD = gql`
   }
 `;
 
-// One entry per card kind, in tab order. Adding a kind (e.g. a new product) means adding an
-// entry here — the first entry doubles as the fallback bucket, see cardsByKind below.
-//
-// The empty-state copy takes the active organization's name (null in Personal) because an
-// organization dashboard is shared: "you haven't created any" is the wrong sentence when
-// the list is the whole team's and a teammate is the one reading it.
-const CARD_TABS: {
-  kind: CardKind;
-  label: string;
-  shortLabel: string;
-  createPath: string;
-  createLabel: string;
-  emptyTitle: (organizationName: string | null) => string;
-  emptyDescription: (organizationName: string | null) => string;
-}[] = [
-  {
-    kind: 'group',
-    label: 'Group Cards',
-    shortLabel: 'Group',
-    createPath: '/group-card/new',
-    createLabel: 'Create New Card',
-    emptyTitle: organizationName =>
-      organizationName
-        ? `No group cards in ${organizationName} yet`
-        : `You haven't created any group cards yet`,
-    emptyDescription: organizationName =>
-      organizationName
-        ? `Create the first one — everyone in ${organizationName} will see it here.`
-        : `Get started by creating your first card — it's quick and easy!`,
-  },
-  {
-    kind: 'one_on_one',
-    label: '1-on-1 Cards',
-    shortLabel: '1-on-1',
-    createPath: '/one-on-one-card/new',
-    createLabel: 'Send a 1-on-1 card',
-    emptyTitle: organizationName =>
-      organizationName
-        ? `No 1-on-1 cards in ${organizationName} yet`
-        : `You haven't sent any 1-on-1 cards yet`,
-    emptyDescription: organizationName =>
-      organizationName
-        ? `Pick a design, write your message, and send it on behalf of ${organizationName}.`
-        : 'Pick a design, write your message, and send it — no group signing needed.',
-  },
-];
+// Card kinds the dashboard buckets cards into. A kind the API knows about but this list
+// doesn't have yet falls back to the first entry, so no card ever goes missing.
+const CARD_KINDS: CardKind[] = ['group', 'one_on_one'];
+
+// How many items each product previews in the "All" view before "See all".
+const ALL_VIEW_LIMIT = 3;
+
+// Empty-state copy per product. It takes the active organization's name (null in Personal)
+// because an organization dashboard is shared: "you haven't created any" is the wrong
+// sentence when the list is the whole team's and a teammate is the one reading it.
+const emptyCopy = (
+  product: ProductId,
+  organizationName: string | null
+): { title: string; description: string } => {
+  switch (product) {
+    case 'group':
+      return organizationName
+        ? {
+            title: `No group cards in ${organizationName} yet`,
+            description: `Create the first one — everyone in ${organizationName} will see it here.`,
+          }
+        : {
+            title: 'No group cards yet',
+            description: 'Start one, share the link, and let everyone add a message.',
+          };
+    case 'one_on_one':
+      return organizationName
+        ? {
+            title: `No 1-on-1 cards in ${organizationName} yet`,
+            description: `Pick a design, write your message, and send it on behalf of ${organizationName}.`,
+          }
+        : {
+            title: 'No 1-on-1 cards yet',
+            description:
+              'Pick a design, write your message, and send it — no group signing needed.',
+          };
+    case 'invitation':
+      return organizationName
+        ? {
+            title: `No invitations in ${organizationName} yet`,
+            description: `Plan an event — everyone in ${organizationName} can see it and track RSVPs.`,
+          }
+        : {
+            title: 'No invitations yet',
+            description: 'Plan a get-together and keep every RSVP in one place.',
+          };
+    case 'registry':
+      return {
+        title: 'No registries yet',
+        description:
+          "List what you'd love for a birthday, wedding, or any occasion, and let friends and family pick something.",
+      };
+  }
+};
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -156,8 +172,10 @@ const Dashboard: React.FC = () => {
   // Null is Personal, and the API reads it that way — not "no filter".
   const organizationId = activeOrganization?.id ?? null;
   const organizationName = activeOrganization?.name ?? null;
-  // Null until the user picks a tab, so the default can follow the data once it loads.
-  const [activeTab, setActiveTab] = useState<string | null>(null);
+  // The selected section lives in the URL (?view=) so it survives reloads, can be linked
+  // to, and works with back/forward.
+  const [searchParams] = useSearchParams();
+  const viewParam = searchParams.get('view');
   const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
@@ -203,23 +221,17 @@ const Dashboard: React.FC = () => {
   const cards: CardType[] = useMemo(() => data?.userCards || [], [data]);
   const invitations = invitationsData?.userInvitations || [];
 
-  // Bucket cards by kind for the per-kind tabs. A kind the API knows about but this UI
-  // doesn't have a tab for yet falls back to the first tab, so no card ever goes missing.
   const cardsByKind = useMemo(() => {
-    const buckets = Object.fromEntries(
-      CARD_TABS.map(tab => [tab.kind, [] as CardType[]])
-    ) as Record<string, CardType[]>;
+    const buckets = Object.fromEntries(CARD_KINDS.map(kind => [kind, [] as CardType[]])) as Record<
+      string,
+      CardType[]
+    >;
     cards.forEach(card => {
-      const bucket = buckets[card.kind] ?? buckets[CARD_TABS[0].kind];
+      const bucket = buckets[card.kind] ?? buckets[CARD_KINDS[0]];
       bucket.push(card);
     });
     return buckets;
   }, [cards]);
-
-  // Land on the first kind the user actually has, so someone who only sends 1-on-1 cards
-  // doesn't open the dashboard on an empty Group tab. A manual choice always wins.
-  const firstPopulatedKind = CARD_TABS.find(tab => cardsByKind[tab.kind].length > 0)?.kind;
-  const selectedTab = activeTab ?? firstPopulatedKind ?? CARD_TABS[0].kind;
 
   // Listen for delete events from child components
   useEffect(() => {
@@ -280,132 +292,156 @@ const Dashboard: React.FC = () => {
   if (organizationLoading || (loading && invitationsLoading)) return <LoadingScreen />;
   if (error) return <ErrorScreen />;
 
-  const hasCards = cards.length > 0;
-  const hasInvitations = invitations.length > 0;
-  const hasRegistries = showRegistryTab && registries.length > 0;
-  const hasAnyContent = hasCards || hasInvitations || hasRegistries;
+  // Registries are personal-only, so they drop out of an organization's dashboard.
+  const visibleProducts = products.filter(product => product.id !== 'registry' || showRegistryTab);
+  const countFor: Record<ProductId, number> = {
+    group: cardsByKind.group.length,
+    one_on_one: cardsByKind.one_on_one.length,
+    invitation: invitations.length,
+    registry: showRegistryTab ? registries.length : 0,
+  };
+  const totalCount = visibleProducts.reduce((sum, product) => sum + countFor[product.id], 0);
+  const populated = visibleProducts.filter(product => countFor[product.id] > 0);
+
+  // Default view: "All" once there's more than one kind of thing to show; otherwise open
+  // straight onto the one product the user actually uses. An explicit ?view= always wins.
+  const validViews: string[] = ['all', ...visibleProducts.map(product => product.dashboardView)];
+  const defaultView = populated.length === 1 ? populated[0].dashboardView : ('all' as const);
+  const activeView = viewParam && validViews.includes(viewParam) ? viewParam : defaultView;
+
+  const sidebarItems: SidebarItem[] = [
+    { view: 'all', label: 'All', count: totalCount },
+    ...visibleProducts.map(product => ({
+      view: product.dashboardView,
+      label: product.label,
+      count: countFor[product.id],
+      colorVar: product.colorVar,
+      softColorVar: product.softColorVar,
+    })),
+  ];
+
+  const renderList = (product: ProductId, limit?: number) => {
+    switch (product) {
+      case 'group':
+      case 'one_on_one':
+        return (
+          <CardsList
+            cards={cardsByKind[product]}
+            onRefetch={refetch}
+            onShareClick={handleCardShareClick}
+            onQrClick={setQrCardId}
+            limit={limit}
+            currentUserId={user?.user_id ?? null}
+          />
+        );
+      case 'invitation':
+        return (
+          <InvitationsList
+            invitations={invitations}
+            onRefetch={refetchInvitations}
+            onShareClick={handleInvitationShareClick}
+            limit={limit}
+          />
+        );
+      case 'registry':
+        return (
+          <RegistriesList registries={registries} onDelete={setRegistryToDelete} limit={limit} />
+        );
+    }
+  };
+
+  const renderSection = (product: ProductId, preview: boolean) => {
+    const { dashboardView } = productById[product];
+    const { title, description } = emptyCopy(product, organizationName);
+    return (
+      <ProductSection
+        key={product}
+        product={product}
+        count={countFor[product]}
+        emptyTitle={title}
+        emptyDescription={description}
+        seeAllHref={preview ? `/dashboard?view=${dashboardView}` : undefined}
+        shown={preview ? ALL_VIEW_LIMIT : undefined}
+      >
+        {renderList(product, preview ? ALL_VIEW_LIMIT : undefined)}
+      </ProductSection>
+    );
+  };
+
+  const activeProduct = visibleProducts.find(product => product.dashboardView === activeView);
 
   return (
-    <div className="flex flex-col flex-grow min-h-[calc(100vh-4rem)] p-4">
+    <div className="flex flex-col flex-grow min-h-[calc(100vh-4rem)]">
       <Toaster />
 
-      {!hasAnyContent ? (
-        <div className="flex flex-col items-center justify-center flex-grow text-center space-y-8 mt-8">
-          <img src="/logo.svg" alt="Felicito Logo" className="opacity-80 w-24 h-24" />
-          <div className="space-y-2">
-            <h2 className="text-2xl font-semibold text-gray-800">
-              {organizationName ? `Nothing in ${organizationName} yet` : 'Welcome to Felicito!'}
-            </h2>
-            <p className="text-gray-500 text-lg">
-              {organizationName
-                ? `Create a card or an invitation — everyone in ${organizationName} will see it here.`
-                : 'Create a group card, send a 1-on-1 card, plan an event invitation, or make a registry to get started'}
-            </p>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button asChild size="lg">
-              <Link to="/group-card/new">Create a card</Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link to="/one-on-one-card/new">Send a 1-on-1 card</Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link to="/invitation/new">Create an invitation</Link>
-            </Button>
-            {showRegistryTab && (
-              <Button asChild size="lg" variant="outline">
-                <Link to="/registry/new">Create a registry</Link>
-              </Button>
+      {totalCount === 0 ? (
+        <div className="relative flex flex-grow flex-col items-center overflow-hidden px-4 pt-12 pb-40 text-center sm:pt-16">
+          <Sun className="animate-float mb-4 w-20 sm:w-24" />
+          <h1 className="text-4xl text-foreground sm:text-5xl">
+            {organizationName ? (
+              `Nothing in ${organizationName} yet`
+            ) : (
+              <>
+                Welcome to <span className="marker-swipe">Felicito</span>
+              </>
             )}
+          </h1>
+          <p className="mt-4 max-w-xl text-lg text-muted-foreground">
+            {organizationName
+              ? `Make something — everyone in ${organizationName} will see it here.`
+              : 'What are we celebrating? Pick a place to start.'}
+          </p>
+          <div className="relative z-10 mt-8 grid w-full max-w-xl grid-cols-1 gap-3 sm:grid-cols-2">
+            {visibleProducts.map(product => (
+              <CreateProductButton
+                key={product.id}
+                product={product.id}
+                className="w-full justify-start"
+              />
+            ))}
           </div>
+          <Hills className="absolute inset-x-0 bottom-0 h-28 sm:h-36" />
         </div>
       ) : (
-        <div className="w-full max-w-7xl mx-auto mt-4 sm:mt-8 px-2 sm:px-4">
-          <div className="mb-4 sm:mb-6 text-center">
-            <h1 className="text-2xl font-semibold text-gray-800">
-              {organizationName ? `${organizationName} cards` : 'Your cards'}
-            </h1>
-            {organizationName && (
-              <p className="text-gray-500 text-sm mt-1">
-                Shared with everyone in {organizationName}.
-              </p>
+        <div className="mx-auto flex w-full max-w-7xl gap-10 px-4 py-6 sm:px-6 md:py-10">
+          <DashboardSidebar
+            items={sidebarItems}
+            activeView={activeView}
+            organizationName={organizationName}
+          />
+
+          <div className="min-w-0 flex-1">
+            <DashboardMobileBar
+              items={sidebarItems}
+              activeView={activeView}
+              organizationName={organizationName}
+            />
+
+            <header className="mb-8">
+              <h1 className="text-3xl text-foreground sm:text-4xl">
+                {organizationName ? `${organizationName} creations` : 'Your creations'}
+              </h1>
+              {organizationName && (
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Shared with everyone in {organizationName}.
+                </p>
+              )}
+            </header>
+
+            {activeProduct ? (
+              renderSection(activeProduct.id, false)
+            ) : (
+              <div className="flex flex-col gap-14">
+                {populated.map(product => renderSection(product.id, true))}
+              </div>
             )}
           </div>
-
-          <Tabs value={selectedTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="flex h-9 sm:h-10 items-center justify-center rounded-full bg-gray-100 p-1 mb-4 sm:mb-6 w-fit max-w-full mx-auto">
-              {CARD_TABS.map(tab => (
-                <TabsTrigger
-                  key={tab.kind}
-                  value={tab.kind}
-                  className="rounded-full px-3 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-sm whitespace-nowrap"
-                >
-                  <span className="sm:hidden">{tab.shortLabel}</span>
-                  <span className="hidden sm:inline">{tab.label}</span>
-                  {cardsByKind[tab.kind].length > 0 && `(${cardsByKind[tab.kind].length})`}
-                </TabsTrigger>
-              ))}
-              <TabsTrigger
-                value="invitations"
-                className="rounded-full px-3 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-sm whitespace-nowrap"
-              >
-                Invites{hasInvitations && ` (${invitations.length})`}
-              </TabsTrigger>
-              {showRegistryTab && (
-                <TabsTrigger
-                  value="registries"
-                  className="rounded-full px-3 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-sm whitespace-nowrap"
-                >
-                  Registries{hasRegistries && ` (${registries.length})`}
-                </TabsTrigger>
-              )}
-            </TabsList>
-
-            {CARD_TABS.map(tab => (
-              <TabsContent key={tab.kind} value={tab.kind} className="mt-0">
-                <CardsList
-                  cards={cardsByKind[tab.kind]}
-                  onRefetch={refetch}
-                  onShareClick={handleCardShareClick}
-                  onQrClick={setQrCardId}
-                  createPath={tab.createPath}
-                  createLabel={tab.createLabel}
-                  emptyTitle={tab.emptyTitle(organizationName)}
-                  emptyDescription={tab.emptyDescription(organizationName)}
-                  currentUserId={user?.user_id ?? null}
-                />
-              </TabsContent>
-            ))}
-
-            <TabsContent value="invitations" className="mt-0">
-              <InvitationsList
-                invitations={invitations}
-                onRefetch={refetchInvitations}
-                onShareClick={handleInvitationShareClick}
-                emptyTitle={
-                  organizationName
-                    ? `No invitations in ${organizationName} yet`
-                    : `You haven't created any invitations yet`
-                }
-                emptyDescription={
-                  organizationName
-                    ? `Plan an event — everyone in ${organizationName} can see it and track RSVPs.`
-                    : 'Create your first event invitation and manage RSVPs easily!'
-                }
-              />
-            </TabsContent>
-            {showRegistryTab && (
-              <TabsContent value="registries" className="mt-0">
-                <RegistriesList registries={registries} onDelete={setRegistryToDelete} />
-              </TabsContent>
-            )}
-          </Tabs>
         </div>
       )}
 
       {/* Registry delete confirmation: its own copy, since guests' claims go with it. */}
       <Dialog open={!!registryToDelete} onOpenChange={open => !open && setRegistryToDelete(null)}>
-        <DialogContent className="p-6 w-96 text-black">
+        <DialogContent className="p-6 w-96">
           <DialogHeader>
             <DialogTitle>Delete this registry?</DialogTitle>
           </DialogHeader>
@@ -452,7 +488,7 @@ const Dashboard: React.FC = () => {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={openDeleteConfirm} onOpenChange={setOpenDeleteConfirm}>
-        <DialogContent className="p-6 w-96 text-black">
+        <DialogContent className="p-6 w-96">
           <DialogHeader>
             <DialogTitle>Confirm Delete</DialogTitle>
           </DialogHeader>

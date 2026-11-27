@@ -1,88 +1,108 @@
 import { Mail, Heart, PartyPopper, Gift, type LucideIcon } from 'lucide-react';
 
-// Product identities shown in marketing surfaces. This is broader than the API's
-// Card::KINDS (group | one_on_one): invitation and registry are separate models with
-// their own flows, but all four share one brand identity here.
-export type CardTypeId = 'group' | 'one_on_one' | 'invitation' | 'registry';
+// Everything a person can make on Felicito — collectively, their "creations". This is
+// broader than the API's Card::KINDS (group | one_on_one): invitation and registry are
+// separate models with their own flows, but all four share one brand identity here.
+export type ProductId = 'group' | 'one_on_one' | 'invitation' | 'registry';
 
-export interface CardTypeTheme {
-  id: CardTypeId;
+// The Button `tone` that paints each product's solid brand color.
+export type ProductTone = 'pink' | 'blue' | 'green' | 'yellow';
+
+// The dashboard's `?view=` key for each product's section.
+export type DashboardView = 'group' | 'one_on_one' | 'invitations' | 'registries';
+
+export interface Product {
+  id: ProductId;
   label: string;
   shortLabel: string;
-  // Action-phrased call to action, e.g. "Create a Group Card".
-  cta: string;
+  // Lowercase noun for running text and the dashboard sidebar, e.g. "group cards".
+  noun: string;
+  // Action-phrased call to action. One pattern for every product, used by every
+  // "create" button in the app (see CreateProductButton).
+  createLabel: string;
   // Job-to-be-done phrasing for intent-led marketing CTAs — leads with what the
-  // user wants to do rather than the internal card-type name.
+  // user wants to do rather than the internal product name.
   intent: string;
-  // Empty when the type has no working create flow yet (see `comingSoon`).
   route: string;
   icon: LucideIcon;
   description: string;
-  // The single authoritative per-type brand color, used for feature icons and CTA accents.
+  // The single authoritative per-product brand color, plus a soft tint for backgrounds.
   colorVar: string;
-  // Gradient stops for the tile header, anchored on the type's color.
-  gradient: string;
-  comingSoon?: boolean;
+  softColorVar: string;
+  tone: ProductTone;
+  dashboardView: DashboardView;
 }
 
-// Single source of truth for the per-type color scheme. Consumed by the marketing home
-// page, the Products dropdown, and the create/edit flows so the mapping lives in one place.
+// Single source of truth for the per-product identity. Consumed by the marketing home
+// page, the header menus, the create picker, the dashboard and the create/edit flows.
 // Mapping: group = pink, one_on_one = blue, invitation = green, registry = yellow.
-export const cardTypes: CardTypeTheme[] = [
+export const products: Product[] = [
   {
     id: 'group',
     label: 'Group Cards',
     shortLabel: 'Group',
-    cta: 'Create a Group Card',
+    noun: 'group cards',
+    createLabel: 'Create a group card',
     intent: 'Get everyone to sign a card',
     route: '/group-card/new',
     icon: Mail,
     description:
-      'Collect heartfelt messages, photos & wishes from everyone who cares — all in one beautiful keepsake.',
+      'Collect heartfelt messages, photos & wishes from everyone who cares — all in one keepsake.',
     colorVar: 'var(--color-brand-pink)',
-    gradient: 'from-[var(--color-brand-pink)] to-[var(--color-brand-blue)]',
+    softColorVar: 'var(--color-brand-pink-soft)',
+    tone: 'pink',
+    dashboardView: 'group',
   },
   {
     id: 'one_on_one',
     label: '1-on-1 Cards',
     shortLabel: '1-on-1',
-    cta: 'Send a 1-on-1 Card',
+    noun: '1-on-1 cards',
+    createLabel: 'Create a 1-on-1 card',
     intent: 'Send a heartfelt note to one person',
     route: '/one-on-one-card/new',
     icon: Heart,
     description:
       'Send one person a single heartfelt message that opens with an effect — no group signing needed.',
     colorVar: 'var(--color-brand-blue)',
-    gradient: 'from-[var(--color-brand-blue)] to-[var(--color-brand-green)]',
+    softColorVar: 'var(--color-brand-blue-soft)',
+    tone: 'blue',
+    dashboardView: 'one_on_one',
   },
   {
     id: 'invitation',
     label: 'Invitations',
     shortLabel: 'Invites',
-    cta: 'Create an Invitation',
+    noun: 'invitations',
+    createLabel: 'Create an invitation',
     intent: 'Invite people to an event',
     route: '/invitation/new',
     icon: PartyPopper,
     description:
       'Design animated invites your guests will love, with RSVP tracking and event details built right in.',
     colorVar: 'var(--color-brand-green)',
-    gradient: 'from-[var(--color-brand-green)] to-[var(--color-brand-blue)]',
+    softColorVar: 'var(--color-brand-green-soft)',
+    tone: 'green',
+    dashboardView: 'invitations',
   },
   {
     id: 'registry',
     label: 'Registries',
     shortLabel: 'Registry',
-    cta: 'Create a Registry',
+    noun: 'registries',
+    createLabel: 'Create a registry',
     intent: 'Share what you wish for',
     route: '/registry/new',
     icon: Gift,
     description:
       'Build a wish list for any occasion — birthday, wedding, baby — and let friends and family get you something you will love.',
     colorVar: 'var(--color-brand-yellow)',
-    gradient: 'from-[var(--color-brand-yellow)] to-[var(--color-brand-pink)]',
+    softColorVar: 'var(--color-brand-yellow-soft)',
+    tone: 'yellow',
+    dashboardView: 'registries',
   },
 ];
 
-export const cardTypeById: Record<CardTypeId, CardTypeTheme> = Object.fromEntries(
-  cardTypes.map(type => [type.id, type])
-) as Record<CardTypeId, CardTypeTheme>;
+export const productById: Record<ProductId, Product> = Object.fromEntries(
+  products.map(product => [product.id, product])
+) as Record<ProductId, Product>;

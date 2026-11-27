@@ -7,65 +7,24 @@
     <changefreq>weekly</changefreq>
   </url>
 
-  <!-- Group Card Use Cases -->
-  <url>
-    <loc>https://felicito.app/birthday</loc>
-    <priority>0.8</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://felicito.app/wedding</loc>
-    <priority>0.8</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://felicito.app/retirement</loc>
-    <priority>0.8</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://felicito.app/farewell_coworker</loc>
-    <priority>0.8</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://felicito.app/new_coworker</loc>
-    <priority>0.8</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://felicito.app/babyshower</loc>
-    <priority>0.8</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://felicito.app/graduation</loc>
-    <priority>0.8</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://felicito.app/anniversary</loc>
-    <priority>0.8</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-
-  <!-- Party Invitation Features -->
-  <url>
-    <loc>https://felicito.app/invitation/new</loc>
-    <priority>0.9</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-
-  <!-- Group Card Features -->
+  <!-- Products: one create page each -->
   <url>
     <loc>https://felicito.app/group-card/new</loc>
     <priority>0.9</priority>
     <changefreq>monthly</changefreq>
   </url>
-
-  <!-- 1-on-1 Card Features -->
   <url>
     <loc>https://felicito.app/one-on-one-card/new</loc>
+    <priority>0.9</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://felicito.app/invitation/new</loc>
+    <priority>0.9</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://felicito.app/registry/new</loc>
     <priority>0.9</priority>
     <changefreq>monthly</changefreq>
   </url>

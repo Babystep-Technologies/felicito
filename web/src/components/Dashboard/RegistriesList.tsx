@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
-import { Eye, Gift, Pencil, Trash2 } from 'lucide-react';
+import { Eye, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { occasionLabel } from '@/lib/wishList';
@@ -18,46 +18,30 @@ export interface DashboardRegistry {
 interface RegistriesListProps {
   registries: DashboardRegistry[];
   onDelete: (externalId: string) => void;
+  // The "All" view previews only the first few registries.
+  limit?: number;
 }
 
-/** The dashboard's registries tab (#245): one card per registry, with edit and delete. */
-export const RegistriesList: React.FC<RegistriesListProps> = ({ registries, onDelete }) => {
+/** The dashboard's registries list (#245): one card per registry, with edit and delete. */
+export const RegistriesList: React.FC<RegistriesListProps> = ({ registries, onDelete, limit }) => {
   const navigate = useNavigate();
 
-  if (registries.length === 0) {
-    return (
-      <div className="flex flex-col items-center gap-3 py-12 text-center">
-        <Gift className="h-10 w-10 text-yellow-500" />
-        <h3 className="text-xl font-semibold text-gray-800">
-          You haven&apos;t made a registry yet
-        </h3>
-        <p className="max-w-md text-gray-500">
-          List what you&apos;d love for a birthday, wedding, or any occasion, and let friends and
-          family pick something.
-        </p>
-        <Button onClick={() => navigate('/registry/new')}>Create a Registry</Button>
-      </div>
-    );
-  }
+  // The dashboard's ProductSection owns the empty state and the create button.
+  if (registries.length === 0) return null;
+
+  const visibleRegistries = limit ? registries.slice(0, limit) : registries;
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-end">
-        <Button asChild>
-          <Link to="/registry/new">Create a Registry</Link>
-        </Button>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {registries.map(registry => {
+    <div className="w-full">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+        {visibleRegistries.map(registry => {
           const occasion = occasionLabel(registry.occasion);
           return (
-            <Card key={registry.externalId}>
+            <Card key={registry.externalId} className="pop-hover">
               <CardContent className="flex h-full flex-col gap-3 p-5">
                 <div>
-                  <h3 className="line-clamp-2 text-lg font-semibold text-gray-900">
-                    {registry.title}
-                  </h3>
-                  <p className="text-sm text-gray-500">
+                  <h3 className="line-clamp-2 text-xl text-foreground">{registry.title}</h3>
+                  <p className="text-sm text-muted-foreground">
                     {[
                       occasion,
                       registry.eventDate
@@ -68,7 +52,7 @@ export const RegistriesList: React.FC<RegistriesListProps> = ({ registries, onDe
                       .join(' · ') || 'Registry'}
                   </p>
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-foreground/80">
                   {registry.items.length === 0
                     ? 'No items yet'
                     : registry.insights
@@ -94,7 +78,7 @@ export const RegistriesList: React.FC<RegistriesListProps> = ({ registries, onDe
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-red-600"
+                    className="text-destructive"
                     onClick={() => onDelete(registry.externalId)}
                   >
                     <Trash2 className="mr-1 h-4 w-4" /> Delete

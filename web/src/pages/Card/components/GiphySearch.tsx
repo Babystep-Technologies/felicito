@@ -4,7 +4,7 @@ import type { IGif } from '@giphy/js-types';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 // GIPHY is an optional integration. Only construct the client when a key is
 // configured — the SDK throws on an empty key, which would crash the page.
