@@ -194,7 +194,7 @@ const ShareDialog: React.FC<ShareDialogProps> = ({
                 : 'Send this card to the recipient.'}
             </p>
             <div className="text-sm text-gray-700 mt-2 font-medium">
-              Share this link via text, email, Slack, or WhatsApp, etc.
+              Share this link by text, email, WhatsApp or anywhere else.
             </div>
             <p className="text-xs text-gray-500 mb-1">
               {isInvitation
@@ -236,7 +236,7 @@ const ShareDialog: React.FC<ShareDialogProps> = ({
                 {sending ? 'Sending...' : 'Send Invite'}
               </Button>
               <div className="text-sm text-gray-700 mt-2 font-medium">
-                Or share this link via text, Slack, or WhatsApp, etc.
+                Or share this link by text, WhatsApp or anywhere else.
               </div>
               <p className="text-xs text-gray-500 mb-1">
                 Anyone with the link can access the card.
@@ -263,7 +263,7 @@ const ShareDialog: React.FC<ShareDialogProps> = ({
                 {sending ? 'Sending...' : 'Send Invite'}
               </Button>
               <div className="text-sm text-gray-700 mt-2 font-medium">
-                Or share this link via text, Slack, or WhatsApp, etc.
+                Or share this link by text, WhatsApp or anywhere else.
               </div>
               <p className="text-xs text-gray-500 mb-1">
                 Anyone with the link can access the card.

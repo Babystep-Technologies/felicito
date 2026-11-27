@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import Reveal from '@/components/Reveal';
 import ColorIconTile from '@/components/ColorIconTile';
 import { Button } from '@/components/ui/button';
-import { slackInstallUrl } from '@/lib/slack';
 import {
   ClosingCta,
   ColorBand,
@@ -14,7 +13,6 @@ import {
   SectionHeading,
 } from '@/components/marketing';
 import {
-  Slack,
   CalendarClock,
   Building2,
   Heart,
@@ -29,31 +27,32 @@ import {
  * The Business hub. Felicito supports exactly two business use cases, and this page
  * exists to tell them apart:
  *
- *   1. Companies celebrating their own people — group cards started from Slack.
+ *   1. Teams celebrating their own people — an organization whose members share a pool
+ *      of credits for cards and invitations.
  *   2. Owners who live on client relationships — a contact book of client occasions
  *      that emails a reminder ahead of the date.
  *
  * Reminders belong to use case 2 only: the user adds the people and dates themselves.
- * Slack has no roster and remembers no dates, so nothing on this page may suggest that
- * installing the Slack app makes birthdays or work anniversaries surface on their own.
+ * An organization has no birthday roster, so nothing on this page may suggest that
+ * creating one makes birthdays or work anniversaries surface on their own.
  */
 
 // The two supported paths, rendered side by side so a visitor can self-select.
 const paths = [
   {
-    id: 'slack',
-    icon: Slack,
+    id: 'organizations',
+    icon: Users,
     eyebrow: 'For teams',
-    title: 'Group cards, started from Slack',
+    title: 'An organization for your team',
     summary:
-      'Your team already celebrates each other. Felicito gives them one command to do it without the DM thread and the passed-around doc.',
+      'Your team already celebrates each other. Create an organization, buy credits once, and let everyone in it use them for cards and invitations.',
     points: [
-      'Run /felicito in Slack, pick the person and the occasion.',
-      'Share the card in the channel so everyone can sign it.',
-      'Coworkers add messages and photos, then it goes to the person.',
+      'Create an organization and invite your colleagues by email.',
+      'Buy credits for the organization and hand them to the people making cards.',
+      'Your team’s cards and invitations live together under the organization.',
     ],
-    route: '/slack',
-    cta: 'See Felicito for Slack',
+    route: '/organizations/new',
+    cta: 'Create an organization',
     colorVar: 'var(--color-brand-pink)',
   },
   {
@@ -100,7 +99,7 @@ const shared = [
 const ForBusiness: React.FC = () => {
   useEffect(() => {
     const previousTitle = document.title;
-    document.title = 'Felicito for Business — team cards in Slack & client occasions';
+    document.title = 'Felicito for Business — organizations & client occasions';
     return () => {
       document.title = previousTitle;
     };
@@ -118,7 +117,7 @@ const ForBusiness: React.FC = () => {
             <span className="marker-swipe">remembered</span>
           </>
         }
-        subtitle="Two ways businesses use Felicito: group cards your team signs in Slack, and a contact book that reminds you before a client’s big day."
+        subtitle="Two ways businesses use Felicito: an organization where your team shares credits for cards, and a contact book that reminds you before a client’s big day."
         birdColor="var(--color-brand-pink)"
         actions={
           <>
@@ -192,10 +191,10 @@ const ForBusiness: React.FC = () => {
             You add the people. Felicito keeps the dates.
           </h2>
           <p className="mx-auto max-w-3xl text-lg font-medium md:text-xl">
-            The Slack app makes a card in seconds when your team already knows an occasion is
-            coming. The reminders come from your own contact book: add someone once, record the
-            date, and Felicito emails you a week before it comes around — so the card gets written
-            while there is still time to send it.
+            An organization lets your team share credits and make a card together whenever an
+            occasion comes up. The reminders come from your own contact book: add someone once,
+            record the date, and Felicito emails you a week before it comes around — so the card
+            gets written while there is still time to send it.
           </p>
           <Button asChild size="lg" tone="paper" className="mt-8">
             <Link to="/client-occasions">
@@ -226,17 +225,17 @@ const ForBusiness: React.FC = () => {
 
       <ClosingCta
         title="Make everyone feel remembered"
-        subtitle="Start free today — with your team in Slack, or with the clients you never want to miss."
+        subtitle="Start free today — with an organization for your team, or with the clients you never want to miss."
         actions={
           <>
             <Button asChild size="xl" tone="ink" className="w-full sm:w-auto">
               <Link to="/sign_up">Get started free</Link>
             </Button>
             <Button asChild size="xl" tone="paper" className="w-full sm:w-auto">
-              <a href={slackInstallUrl()} aria-label="Add Felicito to Slack">
-                <Slack />
-                Add to Slack
-              </a>
+              <Link to="/organizations/new">
+                <Users />
+                Create an organization
+              </Link>
             </Button>
           </>
         }

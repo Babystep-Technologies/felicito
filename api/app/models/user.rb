@@ -136,38 +136,6 @@ class User < ApplicationRecord
   end
 
   # ---------------------
-  # OAuth: Slack (auto-provision)
-  # ---------------------
-  def self.from_slack(slack_user_id:, slack_team_id:, email: nil, name: nil)
-    # No email means we can't create a real, reachable, billable account
-    # (mainly Slack Connect / external guests). Don't synthesize a shadow
-    # account — return nil so the caller routes the user through the connect
-    # flow instead. See issue #81.
-    return nil if email.blank?
-
-    effective_email = email.downcase
-    effective_name = name.presence || "Slack User"
-    uid = "#{slack_team_id}:#{slack_user_id}"
-
-    # Prefer linking to an existing user with the same email
-    user = find_by(email: effective_email)
-    return user if user
-
-    # Fall back to provider/uid lookup (prevents duplicates)
-    user = find_by(provider: "slack", uid: uid)
-    return user if user
-
-    create!(
-      provider: "slack",
-      uid: uid,
-      email: effective_email,
-      name: effective_name,
-      password: Devise.friendly_token[0, 20],
-      email_confirmed: true
-    )
-  end
-
-  # ---------------------
   # Confirmation Code Logic (for email/password signups)
   # ---------------------
 
@@ -211,7 +179,7 @@ class User < ApplicationRecord
   # Grant the one-time signup bonus. Guarded on the presence of an existing
   # signup_bonus row so re-running the callback (or a backfill) can't
   # double-grant. Runs as an after_create callback so every creation path
-  # (email signup, Google/Slack OAuth, seeds, admin) is covered.
+  # (email signup, Google OAuth, seeds, admin) is covered.
   sig { void }
   def grant_signup_credits
     return if credits.where(reason: "signup_bonus").exists?

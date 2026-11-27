@@ -53,7 +53,6 @@ module Types
     field :set_wish_list_reservation_purchased, mutation: Mutations::SetWishListReservationPurchased
     field :release_wish_list_reservation, mutation: Mutations::ReleaseWishListReservation
     field :create_rsvp, mutation: Mutations::CreateRsvp
-    field :connect_slack_account, mutation: Mutations::ConnectSlackAccount
     field :create_contact, mutation: Mutations::CreateContact
     field :update_contact, mutation: Mutations::UpdateContact
     field :delete_contact, mutation: Mutations::DeleteContact

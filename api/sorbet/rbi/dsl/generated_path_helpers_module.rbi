@@ -46,9 +46,6 @@ module GeneratedPathHelpersModule
   def new_user_session_path(*args); end
 
   sig { params(args: T.untyped).returns(String) }
-  def oauth_slack_callback_path(*args); end
-
-  sig { params(args: T.untyped).returns(String) }
   def rails_blob_path(*args); end
 
   sig { params(args: T.untyped).returns(String) }
@@ -127,6 +124,9 @@ module GeneratedPathHelpersModule
   def rails_storage_redirect_path(*args); end
 
   sig { params(args: T.untyped).returns(String) }
+  def registry_preview_path(*args); end
+
+  sig { params(args: T.untyped).returns(String) }
   def update_rails_disk_service_path(*args); end
 
   sig { params(args: T.untyped).returns(String) }
@@ -146,9 +146,6 @@ module GeneratedPathHelpersModule
 
   sig { params(args: T.untyped).returns(String) }
   def viewable_card_preview_path(*args); end
-
-  sig { params(args: T.untyped).returns(String) }
-  def webhooks_slack_path(*args); end
 
   sig { params(args: T.untyped).returns(String) }
   def webhooks_stripe_path(*args); end

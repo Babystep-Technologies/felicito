@@ -4,7 +4,7 @@
 # than to a User: the invited person may not have a Felicito account yet.
 #
 # That detour is why `token` is a persisted random string and not a JWT like the
-# Slack and password-reset links. The token has to survive a sign-up round trip,
+# password-reset links. The token has to survive a sign-up round trip,
 # stay revocable, and be single-use — none of which a stateless token gives us.
 class OrganizationInvitation < ApplicationRecord
   extend T::Sig

@@ -12,7 +12,7 @@ RSpec.describe User, type: :model do
     end
 
     it "grants the bonus regardless of creation path (OAuth)" do
-      user = User.from_slack(slack_user_id: "U1", slack_team_id: "T1", email: "alice@example.com", name: "Alice")
+      user = User.from_google(uid: "g-1", email: "alice@example.com", full_name: "Alice")
 
       expect(user.credit_balance).to eq(User::SIGNUP_CREDIT_GRANT)
     end
@@ -143,92 +143,6 @@ RSpec.describe User, type: :model do
       expect(succeeded.value).to eq(1)
       expect(failed.value).to eq(1)
       expect(user.reload.credit_balance).to eq(0)
-    end
-  end
-
-  describe ".from_slack" do
-    let(:slack_user_id) { "U12345" }
-    let(:slack_team_id) { "T67890" }
-
-    it "creates a new user with Slack profile data" do
-      user = User.from_slack(
-        slack_user_id: slack_user_id,
-        slack_team_id: slack_team_id,
-        email: "alice@example.com",
-        name: "Alice"
-      )
-
-      expect(user).to be_persisted
-      expect(user.email).to eq("alice@example.com")
-      expect(user.name).to eq("Alice")
-      expect(user.provider).to eq("slack")
-      expect(user.uid).to eq("#{slack_team_id}:#{slack_user_id}")
-      expect(user.email_confirmed).to be true
-    end
-
-    it "returns an existing user when the email matches" do
-      existing = create(:user, email: "alice@example.com")
-
-      user = User.from_slack(
-        slack_user_id: slack_user_id,
-        slack_team_id: slack_team_id,
-        email: "alice@example.com",
-        name: "Alice"
-      )
-
-      expect(user).to eq(existing)
-      expect(User.count).to eq(1)
-    end
-
-    it "returns nil and creates no account when no email is provided" do
-      expect {
-        @result = User.from_slack(
-          slack_user_id: slack_user_id,
-          slack_team_id: slack_team_id
-        )
-      }.not_to change { User.count }
-
-      expect(@result).to be_nil
-    end
-
-    it "returns nil when the email is blank" do
-      user = User.from_slack(
-        slack_user_id: slack_user_id,
-        slack_team_id: slack_team_id,
-        email: "  ",
-        name: "Alice"
-      )
-
-      expect(user).to be_nil
-    end
-
-    it "uses 'Slack User' as the default name when a name is not provided" do
-      user = User.from_slack(
-        slack_user_id: slack_user_id,
-        slack_team_id: slack_team_id,
-        email: "noname@example.com"
-      )
-
-      expect(user.name).to eq("Slack User")
-    end
-
-    it "does not create duplicate users for the same Slack identity" do
-      first = User.from_slack(
-        slack_user_id: slack_user_id,
-        slack_team_id: slack_team_id,
-        email: "alice@example.com",
-        name: "Alice"
-      )
-
-      second = User.from_slack(
-        slack_user_id: slack_user_id,
-        slack_team_id: slack_team_id,
-        email: "alice@example.com",
-        name: "Alice"
-      )
-
-      expect(first).to eq(second)
-      expect(User.count).to eq(1)
     end
   end
 
