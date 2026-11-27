@@ -222,10 +222,10 @@ const Home: React.FC = () => {
                   }`}
                   style={{ backgroundColor: product.colorVar }}
                 >
-                  <div className="flex shrink-0 items-center justify-center rounded-2xl border-2 border-ink bg-[#fff8ec] p-3 sm:size-40 sm:self-center">
+                  <div className="flex shrink-0 items-center justify-center rounded-2xl border-2 border-ink bg-[#fff8ec] p-1.5 sm:size-44 sm:self-center">
                     <ProductVignette
                       product={product.id}
-                      className="h-24 w-auto transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-2 motion-reduce:transform-none"
+                      className="h-32 w-auto transition-transform sm:h-auto sm:w-full duration-300 group-hover:scale-105 group-hover:-rotate-2 motion-reduce:transform-none"
                     />
                   </div>
                   <div className="flex flex-1 flex-col">

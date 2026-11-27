@@ -1,11 +1,16 @@
 import type { ProductId } from '@/config/products';
-import { CakeVignette, GiftVignette, LetterVignette, PicnicVignette } from '@/components/doodles';
+import {
+  GroupCardVignette,
+  InvitationVignette,
+  OneOnOneVignette,
+  RegistryVignette,
+} from '@/components/doodles';
 
 const VIGNETTES: Record<ProductId, React.FC<{ className?: string }>> = {
-  group: CakeVignette,
-  one_on_one: LetterVignette,
-  invitation: PicnicVignette,
-  registry: GiftVignette,
+  group: GroupCardVignette,
+  one_on_one: OneOnOneVignette,
+  invitation: InvitationVignette,
+  registry: RegistryVignette,
 };
 
 /** The little everyday scene that stands for a product. */
