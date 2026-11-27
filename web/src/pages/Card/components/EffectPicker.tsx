@@ -34,10 +34,10 @@ const EffectPicker: React.FC<EffectPickerProps> = ({ styles, selectedId, onSelec
             type="button"
             onClick={() => onSelect(isSelected ? null : style.id)}
             aria-pressed={isSelected}
-            className={`flex items-center gap-2 rounded-2xl border-2 px-4 py-2.5 text-sm font-semibold transition-all hover:scale-105 ${
+            className={`flex items-center gap-2 rounded-full border-2 border-ink px-4 py-1.5 text-sm font-semibold transition-all ${
               isSelected
-                ? 'border-purple-500 bg-purple-100 text-purple-700 shadow-sm scale-105'
-                : 'border-gray-200 bg-white text-gray-700 hover:border-purple-300 hover:bg-purple-50'
+                ? 'bg-ink text-paper shadow-pop-sm'
+                : 'bg-card text-foreground hover:-translate-y-px hover:bg-accent'
             }`}
           >
             <Icon className="h-4 w-4" />

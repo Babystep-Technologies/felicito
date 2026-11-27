@@ -2,19 +2,26 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { Toaster, toast } from 'sonner';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrganization } from '@/contexts/OrganizationContext';
 import { APP_TOKEN_KEY } from '@/lib/constants';
 import { isInsufficientCreditsError, INSUFFICIENT_CREDITS_REDIRECT } from '@/lib/credits';
 import { StyleType } from '@/types/app';
 import { productById } from '@/config/products';
-import { X, Sparkles, Upload, Users, Heart, Palette } from 'lucide-react';
+import { X, Upload, Users, Palette, Settings2 } from 'lucide-react';
+import {
+  AddRowButton,
+  ChoiceChips,
+  Field,
+  FormActions,
+  FormPage,
+  FormSection,
+  SwatchPicker,
+  SwitchRow,
+} from '@/components/form/FormKit';
 import {
   Select,
   SelectTrigger,
@@ -275,328 +282,226 @@ const CardNew: React.FC = () => {
   }, [backgroundColorStyles, textColorStyles, selectedBackgroundColorId, selectedTextColorId]);
 
   return (
-    <div className="flex flex-col flex-grow min-h-screen bg-gradient-to-br from-yellow-50 via-pink-50 to-blue-50">
-      <div className="w-full mx-auto px-4 py-8 max-w-full sm:max-w-[85%] lg:max-w-[70%] xl:max-w-[60%] mt-16">
-        <Toaster />
+    <FormPage
+      product="group"
+      title="Create a group card"
+      subtitle="Collect heartfelt messages from everyone who cares."
+    >
+      <Toaster />
 
-        {/* Fun Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl sm:text-5xl font-bold mb-3">Create Your Group Card</h1>
-          <p className="text-gray-600 text-lg">
-            Collect heartfelt messages from everyone who cares
-          </p>
-        </div>
+      <FormSection title="Who's it for?" icon={Users}>
+        <Field label="Card title" htmlFor="title" required>
+          <Input
+            id="title"
+            placeholder="e.g., Happy Birthday Sarah!"
+            value={newCard.title}
+            onChange={e => setNewCard({ ...newCard, title: e.target.value })}
+          />
+        </Field>
 
-        <Card className="shadow-xl border-2 border-gray-200 bg-white/95 backdrop-blur">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-2xl">
-              <Heart className="w-6 h-6 text-pink-500" />
-              Card Details
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6 pt-6">
-            {/* Card Title */}
-            <div className="space-y-2">
-              <Label htmlFor="title" className="text-base font-semibold flex items-center gap-2">
-                Card Title <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="title"
-                placeholder="e.g., Happy Birthday Sarah!"
-                value={newCard.title}
-                onChange={e => setNewCard({ ...newCard, title: e.target.value })}
-                className="text-lg border-2 focus:border-purple-400 transition-colors"
-              />
-            </div>
+        <Field label="Recipients" hint="Who is this card for?" required>
+          <div className="space-y-2">
+            {newCard.recipients.map((recipient, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <Input
+                  aria-label={`Recipient ${i + 1}`}
+                  placeholder="Recipient name (e.g. John Doe)"
+                  value={recipient}
+                  onChange={e => handleRecipientChange(i, e.target.value)}
+                />
+                {newCard.recipients.length > 1 && (
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => handleRemoveRecipient(i)}
+                    aria-label={`Remove recipient ${i + 1}`}
+                  >
+                    <X />
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+          <AddRowButton onClick={handleAddRecipient}>Add another recipient</AddRowButton>
+        </Field>
 
-            {/* Recipients */}
-            <div className="space-y-2">
-              <Label className="text-base font-semibold flex items-center gap-2">
-                <Users className="w-4 h-4 text-blue-500" />
-                Recipients <span className="text-red-500">*</span>
-              </Label>
-              <p className="text-sm text-gray-600 mb-2">Who is this card for?</p>
-              {newCard.recipients.map((recipient, i) => (
-                <div key={i} className="flex items-center space-x-2">
-                  <Input
-                    placeholder={`Recipient Name (e.g. John Doe)`}
-                    value={recipient}
-                    onChange={e => handleRecipientChange(i, e.target.value)}
-                    className="border-2"
-                  />
-                  {newCard.recipients.length > 1 && (
-                    <Button
-                      size="icon"
-                      onClick={() => handleRemoveRecipient(i)}
-                      variant="outline"
-                      className="border-2 hover:border-red-400 hover:bg-red-50"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
+        <Field label="Occasion" optional>
+          <Select value={occasion} onValueChange={setOccasion}>
+            <SelectTrigger className="w-full sm:w-64">
+              <SelectValue placeholder="Pick one" />
+            </SelectTrigger>
+            <SelectContent>
+              {occasions.map((occasion: string) => (
+                <SelectItem key={occasion} value={occasion}>
+                  {occasion}
+                </SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+        </Field>
+      </FormSection>
+
+      {/* The background is the first thing anyone sees when the card opens, so it sits
+          near the top rather than buried at the bottom of the form. */}
+      <FormSection
+        title="Make it beautiful"
+        icon={Palette}
+        description="The background image is the first thing people see when they open your card."
+      >
+        {coverImage ? (
+          <div className="space-y-3">
+            <div className="relative w-full">
+              <img
+                src={coverImage instanceof Blob ? URL.createObjectURL(coverImage) : coverImage}
+                alt="Selected background"
+                className="h-64 w-full rounded-xl border-2 border-ink object-cover"
+              />
               <Button
-                variant="outline"
-                onClick={handleAddRecipient}
-                className="w-full border-2 border-dashed hover:border-purple-400 hover:bg-purple-50"
+                type="button"
+                size="icon"
+                tone="paper"
+                className="absolute top-3 right-3"
+                onClick={() => setCoverImage(null)}
+                aria-label="Remove background image"
               >
-                + Add Another Recipient
+                <X />
               </Button>
             </div>
-
-            {/* Background image. Promoted above the fold and given the same weight as
-                Card Settings — it's the first thing anyone sees when the card opens,
-                and buried at the bottom of the form most creators skipped it. */}
-            <div className="border-4 border-blue-300 rounded-2xl p-6 bg-gradient-to-br from-blue-50 to-purple-50 space-y-4">
-              <h3 className="text-xl font-bold flex items-center gap-2">
-                <Palette className="w-5 h-5 text-blue-600" />
-                Make it beautiful
-              </h3>
-              <p className="text-sm text-gray-600">
-                The background image is the first thing people see when they open your card.
-              </p>
-
-              {coverImage ? (
-                <div className="space-y-3">
-                  <div className="relative w-full">
-                    <img
-                      src={
-                        coverImage instanceof Blob ? URL.createObjectURL(coverImage) : coverImage
-                      }
-                      alt="Selected Cover"
-                      className="w-full h-64 object-cover rounded-xl border-4 border-white shadow-lg"
-                    />
-                    <button
-                      type="button"
-                      className="absolute top-3 right-3 bg-white/90 hover:bg-white rounded-full p-2 shadow-lg transition-all hover:scale-110"
-                      onClick={() => setCoverImage(null)}
-                      aria-label="Remove cover image"
-                    >
-                      <X className="w-5 h-5 text-gray-700" />
-                    </button>
-                  </div>
-                  <Button
-                    variant="outline"
-                    onClick={() => setCoverDialogOpen(true)}
-                    className="border-2 bg-white font-semibold hover:border-blue-400 hover:bg-blue-50"
-                  >
-                    Choose a different one
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <Label className="text-base font-semibold">Pick a background</Label>
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                    {coverStyles.map((style: StyleType, i: number) => (
-                      <ImageWithSkeleton
-                        key={style.id}
-                        src={style.value}
-                        // Style names are raw upload filenames, useless to a screen reader.
-                        alt={`Background option ${i + 1}`}
-                        className="aspect-[4/3] overflow-hidden rounded-lg border-2 border-white shadow-sm transition-all hover:scale-105 hover:border-blue-400"
-                        onClick={() => setCoverImage(style.value)}
-                      />
-                    ))}
-                    <button
-                      type="button"
-                      onClick={() => setCoverDialogOpen(true)}
-                      className="aspect-[4/3] flex flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-blue-300 bg-white/70 text-blue-600 transition-all hover:border-blue-500 hover:bg-white"
-                    >
-                      <Upload className="w-6 h-6" />
-                      <span className="text-xs font-semibold">Use your own</span>
-                    </button>
-                  </div>
-                </div>
-              )}
+            <Button type="button" variant="outline" onClick={() => setCoverDialogOpen(true)}>
+              Choose a different one
+            </Button>
+          </div>
+        ) : (
+          <Field label="Background">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+              {coverStyles.map((style: StyleType, i: number) => (
+                <ImageWithSkeleton
+                  key={style.id}
+                  src={style.value}
+                  // Style names are raw upload filenames, useless to a screen reader.
+                  alt={`Background option ${i + 1}`}
+                  className="aspect-[4/3] cursor-pointer overflow-hidden rounded-lg border-2 border-ink transition-transform hover:-translate-y-0.5"
+                  onClick={() => setCoverImage(style.value)}
+                />
+              ))}
+              <button
+                type="button"
+                onClick={() => setCoverDialogOpen(true)}
+                className="flex aspect-[4/3] flex-col items-center justify-center gap-1 rounded-lg border-2 border-ink bg-brand-pink-soft text-[#1d1b2f] transition-transform hover:-translate-y-0.5"
+              >
+                <Upload className="size-5" />
+                <span className="text-xs font-semibold">Use your own</span>
+              </button>
             </div>
+          </Field>
+        )}
 
-            {/* Cover Image Dialog */}
-            <CoverImageDialog
-              open={coverDialogOpen}
-              onOpenChange={setCoverDialogOpen}
-              onSelectCover={cover => {
-                setCoverImage(cover);
-                setCoverDialogOpen(false);
+        <CoverImageDialog
+          open={coverDialogOpen}
+          onOpenChange={setCoverDialogOpen}
+          onSelectCover={cover => {
+            setCoverImage(cover);
+            setCoverDialogOpen(false);
+          }}
+        />
+
+        <Field label="Background color">
+          <SwatchPicker
+            ariaLabel="Background color"
+            swatches={backgroundColorStyles}
+            selectedId={selectedBackgroundColorId}
+            onSelect={setSelectedBackgroundColorId}
+          />
+        </Field>
+
+        <Field label="Text color">
+          <SwatchPicker
+            ariaLabel="Text color"
+            swatches={textColorStyles}
+            selectedId={selectedTextColorId}
+            onSelect={setSelectedTextColorId}
+          />
+        </Field>
+      </FormSection>
+
+      <FormSection title="Settings" icon={Settings2}>
+        <Field label="Maximum messages" hint="The most messages this card can receive.">
+          <ChoiceChips
+            ariaLabel="Maximum messages"
+            options={[20, 50, 100, 500, 1000].map(value => ({ value, label: value }))}
+            value={maxMessages}
+            onChange={setMaxMessages}
+          />
+        </Field>
+
+        <SwitchRow
+          id="requireLoginToContribute"
+          label="Require sign-in to contribute"
+          description="Only signed-in people can leave messages on this card."
+          checked={requireLoginToContribute}
+          onCheckedChange={setRequireLoginToContribute}
+        />
+
+        <Field
+          label="Prompt for contributors"
+          htmlFor="contributorPrompt"
+          optional
+          hint="Give people some context or a question to guide what they write. Shown above the message box."
+        >
+          <Textarea
+            id="contributorPrompt"
+            value={contributorPrompt}
+            onChange={e => setContributorPrompt(e.target.value.slice(0, 500))}
+            placeholder="e.g., It's Sarah's first day at her first job — what career advice would you give her?"
+            className="resize-none"
+            rows={3}
+          />
+          <p className="text-right text-xs text-muted-foreground">{contributorPrompt.length}/500</p>
+        </Field>
+      </FormSection>
+
+      <FormActions>
+        <Button type="button" variant="ghost" size="lg" onClick={() => navigate('/')}>
+          Cancel
+        </Button>
+        <Button
+          onClick={handleCreateCard}
+          disabled={!isFormValid || creating}
+          tone={productById.group.tone}
+          size="lg"
+        >
+          {creating ? 'Creating…' : 'Create card'}
+        </Button>
+      </FormActions>
+
+      <Dialog open={signInDialogOpen} onOpenChange={setSignInDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Sign in required</DialogTitle>
+            <DialogDescription>You need to sign in to create a card.</DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col gap-2 sm:flex-row">
+            <Button
+              variant="outline"
+              onClick={() => setSignInDialogOpen(false)}
+              className="w-full sm:w-auto"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                const currentUrl = window.location.pathname + window.location.search;
+                window.location.href = `/sign_in?redirect=${encodeURIComponent(currentUrl)}`;
               }}
-            />
-
-            {/* Occasion Picker */}
-            <div className="space-y-2">
-              <Label className="text-base font-semibold">Occasion (Optional)</Label>
-              <Select value={occasion} onValueChange={setOccasion}>
-                <SelectTrigger className="border-2">
-                  <SelectValue placeholder="Select an Occasion" />
-                </SelectTrigger>
-                <SelectContent>
-                  {occasions.map((occasion: string) => (
-                    <SelectItem key={occasion} value={occasion}>
-                      {occasion}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Card Settings */}
-            <div className="border-4 border-purple-300 rounded-2xl p-6 bg-gradient-to-br from-purple-50 to-pink-50 space-y-4">
-              <h3 className="text-xl font-bold flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-purple-600" />
-                Card Settings
-              </h3>
-
-              {/* Max Messages */}
-              <div className="space-y-2">
-                <Label htmlFor="maxMessages" className="text-base font-semibold">
-                  Maximum Messages
-                </Label>
-                <p className="text-sm text-gray-600 mb-2">
-                  Set the maximum number of messages this card can receive
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {[20, 50, 100, 500, 1000].map(value => (
-                    <button
-                      key={value}
-                      type="button"
-                      onClick={() => setMaxMessages(value)}
-                      className={`px-4 py-2 rounded-lg border-2 transition-all font-medium text-sm ${
-                        maxMessages === value
-                          ? 'border-purple-500 bg-purple-100 text-purple-700 shadow-sm scale-105'
-                          : 'bg-white border-gray-200 text-gray-700 hover:border-purple-300 hover:bg-purple-50'
-                      }`}
-                    >
-                      {value}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Require Login to Contribute */}
-              <div className="flex items-center justify-between bg-white/70 p-4 rounded-xl">
-                <div>
-                  <Label className="text-base font-semibold">Require Login to Contribute</Label>
-                  <p className="text-sm text-gray-600 mt-1">
-                    When enabled, only logged-in users can leave messages on this card
-                  </p>
-                </div>
-                <Switch
-                  checked={requireLoginToContribute}
-                  onCheckedChange={setRequireLoginToContribute}
-                />
-              </div>
-
-              {/* Contributor Prompt */}
-              <div className="space-y-2 bg-white/70 p-4 rounded-xl">
-                <Label htmlFor="contributorPrompt" className="text-base font-semibold">
-                  Message Prompt for Contributors (Optional)
-                </Label>
-                <p className="text-sm text-gray-600 mb-2">
-                  Give contributors a bit of context or a question to guide what they write. Shown
-                  above the message box while they type.
-                </p>
-                <Textarea
-                  id="contributorPrompt"
-                  value={contributorPrompt}
-                  onChange={e => setContributorPrompt(e.target.value.slice(0, 500))}
-                  placeholder="e.g., It's Sarah's first day at her first job — what career advice would you give her?"
-                  className="border-2 focus:border-purple-400 resize-none"
-                  rows={3}
-                />
-                <p className="text-xs text-gray-500 text-right">{contributorPrompt.length}/500</p>
-              </div>
-            </div>
-
-            {/* Sign In Dialog */}
-            <Dialog open={signInDialogOpen} onOpenChange={setSignInDialogOpen}>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Sign In Required</DialogTitle>
-                  <DialogDescription>You need to sign in to create a card.</DialogDescription>
-                </DialogHeader>
-                <DialogFooter className="flex-col sm:flex-row gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setSignInDialogOpen(false)}
-                    className="w-full sm:w-auto"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      const currentUrl = window.location.pathname + window.location.search;
-                      window.location.href = `/sign_in?redirect=${encodeURIComponent(currentUrl)}`;
-                    }}
-                    className="w-full sm:w-auto"
-                  >
-                    Sign In
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-
-            {/* Background Colors */}
-            <div className="space-y-2">
-              <Label className="text-base font-semibold">Background Color</Label>
-              <div className="flex flex-wrap gap-3">
-                {backgroundColorStyles.map((style: StyleType) => (
-                  <button
-                    key={style.id}
-                    onClick={() => setSelectedBackgroundColorId(style.id)}
-                    title={style.name}
-                    className={`w-12 h-12 rounded-xl border-2 transition-all hover:scale-110 ${
-                      selectedBackgroundColorId === style.id
-                        ? 'border-purple-500 ring-4 ring-purple-200 scale-110'
-                        : 'border-gray-300 hover:border-purple-300'
-                    }`}
-                    style={{ backgroundColor: style.value }}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Text Colors */}
-            <div className="space-y-2">
-              <Label className="text-base font-semibold">Text Color</Label>
-              <div className="flex flex-wrap gap-3">
-                {textColorStyles.map((style: StyleType) => (
-                  <button
-                    key={style.id}
-                    onClick={() => setSelectedTextColorId(style.id)}
-                    title={style.name}
-                    className={`w-12 h-12 rounded-xl border-2 transition-all hover:scale-110 ${
-                      selectedTextColorId === style.id
-                        ? 'border-pink-500 ring-4 ring-pink-200 scale-110'
-                        : 'border-gray-300 hover:border-pink-300'
-                    }`}
-                    style={{ backgroundColor: style.value }}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Submit Buttons */}
-            <div className="pt-4 flex flex-col sm:flex-row sm:justify-end gap-3">
-              <Button
-                variant="outline"
-                onClick={() => navigate('/')}
-                className="w-full sm:w-auto border-2 hover:border-gray-400 font-bold text-lg h-14"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleCreateCard}
-                disabled={!isFormValid || creating}
-                tone={productById.group.tone}
-                size="xl"
-                className="w-full sm:w-auto text-lg h-14"
-              >
-                {creating ? 'Creating...' : 'Create Card'}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+              className="w-full sm:w-auto"
+            >
+              Sign in
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </FormPage>
   );
 };
 

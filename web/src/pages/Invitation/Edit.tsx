@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { AddressAutocomplete } from '@/components/ui/address-autocomplete';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Field, FormActions, FormPage, FormSection, INPUT_LIKE } from '@/components/form/FormKit';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Toaster, toast } from 'sonner';
@@ -16,7 +16,8 @@ import {
   Calendar,
   Clock,
   MapPin,
-  Sparkles,
+  PartyPopper,
+  ListChecks,
   Upload,
   ArrowLeft,
   Wand2,
@@ -478,483 +479,421 @@ const InvitationEdit: React.FC = () => {
   if (loading) return <LoadingScreen />;
 
   return (
-    <div className="flex flex-col flex-grow min-h-screen bg-gradient-to-br from-yellow-50 via-pink-50 to-blue-50">
-      <div className="w-full mx-auto px-4 py-8 max-w-full sm:max-w-[85%] lg:max-w-[70%] xl:max-w-[60%] mt-16">
-        <Toaster />
-
-        {/* Back Button */}
-        <Button
-          variant="outline"
-          onClick={() => navigate(`/invitation/${id}`)}
-          className="mb-6 border-2"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Invitation
+    <FormPage
+      product="invitation"
+      title="Edit your invitation"
+      subtitle="Make changes to your event details."
+      headerAction={
+        <Button variant="outline" onClick={() => navigate(`/invitation/${id}`)}>
+          <ArrowLeft />
+          Back to invitation
         </Button>
+      }
+    >
+      <Toaster />
 
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl sm:text-5xl font-bold mb-3">Edit Invitation</h1>
-          <p className="text-gray-600 text-lg">Make changes to your event details</p>
-        </div>
-
-        <Card className="shadow-xl border-2 border-gray-200 bg-white/95 backdrop-blur">
-          <CardHeader className="border-b-2 border-dashed border-gray-200">
-            <CardTitle className="flex items-center gap-2 text-2xl">
-              <Sparkles className="w-6 h-6 text-yellow-500" />
-              Event Details
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6 pt-6">
-            {/* Event Title */}
-            <div className="space-y-2">
-              <Label htmlFor="title" className="text-base font-semibold flex items-center gap-2">
-                Event Title <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="title"
-                placeholder="e.g., Summer Pool Party"
-                value={title}
-                onChange={e => setTitle(e.target.value)}
-                className="text-lg border-2 focus:border-purple-400 transition-colors"
-              />
-            </div>
-
-            {/* Cover Image */}
-            <div className="space-y-2">
-              <Label className="text-base font-semibold flex items-center gap-2">
-                <Upload className="w-4 h-4" />
-                Cover Image
-              </Label>
-              {coverImage ? (
-                <div className="relative w-full">
-                  <img
-                    src={coverImage instanceof Blob ? URL.createObjectURL(coverImage) : coverImage}
-                    alt="Cover"
-                    className="w-full h-64 object-cover rounded-xl border-4 border-white shadow-lg"
-                  />
-                  <button
-                    type="button"
-                    className="absolute top-3 right-3 bg-white/90 hover:bg-white rounded-full p-2 shadow-lg transition-all hover:scale-110"
-                    onClick={() => setCoverImage(null)}
-                  >
-                    <X className="w-5 h-5 text-gray-700" />
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setCoverDialogOpen(true)}
-                  className="w-full h-48 border-4 border-dashed border-gray-300 rounded-xl hover:border-purple-400 hover:bg-purple-50/50 transition-all flex flex-col items-center justify-center gap-3 group"
-                >
-                  <Upload className="w-12 h-12 text-gray-400 group-hover:text-purple-500 transition-colors" />
-                  <span className="text-gray-500 group-hover:text-purple-600 font-medium">
-                    Click to add a cover image
-                  </span>
-                </button>
-              )}
-            </div>
-
-            {/* Opening Screen Section */}
-            <div className="border-4 border-purple-300 rounded-2xl p-6 bg-gradient-to-br from-purple-50 to-pink-50">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold flex items-center gap-2 text-purple-800">
-                    <Wand2 className="w-5 h-5" />
-                    Opening Screen
-                  </h3>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Create an animated intro your guests will see before viewing the invitation
-                  </p>
-                </div>
-                <Button
-                  type="button"
-                  onClick={() => setOpeningEditorOpen(true)}
-                  tone={productById.invitation.tone}
-                >
-                  {openingMessageConfig ? 'Edit' : 'Customize'}
-                </Button>
-              </div>
-              {openingMessageConfig && (
-                <div className="mt-4 p-4 bg-white/70 rounded-xl border-2 border-purple-200">
-                  <p className="text-lg font-semibold text-purple-700">
-                    "{openingMessageConfig.text.title}"
-                  </p>
-                  {openingMessageConfig.text.subtitle && (
-                    <p className="text-sm text-gray-600 mt-1">
-                      {openingMessageConfig.text.subtitle}
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Date and Time Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-base font-semibold flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-pink-500" />
-                  Date <span className="text-red-500">*</span>
-                </Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        'w-full justify-start text-left font-normal border-2 focus:border-pink-400 h-11',
-                        !eventDate && 'text-muted-foreground'
-                      )}
-                    >
-                      <Calendar className="mr-2 h-4 w-4" />
-                      {eventDate ? format(eventDate, 'PPP') : <span>Pick a date</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <CalendarComponent
-                      mode="single"
-                      selected={eventDate}
-                      onSelect={setEventDate}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-base font-semibold flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-blue-500" />
-                  Time <span className="text-red-500">*</span>
-                </Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        'w-full justify-start text-left font-normal border-2 focus:border-blue-400 h-11',
-                        !eventTime && 'text-muted-foreground'
-                      )}
-                    >
-                      <Clock className="mr-2 h-4 w-4" />
-                      {eventTime ? (
-                        (() => {
-                          const [hours, minutes] = eventTime.split(':');
-                          const hour = parseInt(hours);
-                          const period = hour >= 12 ? 'pm' : 'am';
-                          const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-                          return `${displayHour}:${minutes}${period}`;
-                        })()
-                      ) : (
-                        <span>Pick a time</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[140px] p-0" align="start">
-                    <div className="max-h-[280px] overflow-y-auto">
-                      {Array.from({ length: 96 }, (_, i) => {
-                        const totalMinutes = i * 15;
-                        const hours = Math.floor(totalMinutes / 60);
-                        const minutes = totalMinutes % 60;
-                        const period = hours >= 12 ? 'pm' : 'am';
-                        const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
-                        const militaryTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-                        const displayTime = `${displayHour}:${minutes.toString().padStart(2, '0')}${period}`;
-
-                        return (
-                          <button
-                            key={militaryTime}
-                            onClick={() => setEventTime(militaryTime)}
-                            className={cn(
-                              'w-full px-4 py-3 text-left hover:bg-blue-50 transition-colors border-b last:border-b-0',
-                              eventTime === militaryTime &&
-                                'bg-blue-100 font-semibold text-blue-700'
-                            )}
-                          >
-                            {displayTime}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
-
-            {/* Timezone */}
-            <div className="space-y-2">
-              <Label htmlFor="timezone" className="text-base font-semibold flex items-center gap-2">
-                <Clock className="w-4 h-4 text-purple-500" />
-                Timezone
-              </Label>
-              <select
-                id="timezone"
-                value={eventTimezone}
-                onChange={e => setEventTimezone(e.target.value)}
-                className="w-full h-11 px-3 rounded-md border-2 border-input bg-background focus:border-purple-400 focus:outline-none"
-              >
-                <option value="America/New_York">Eastern Time</option>
-                <option value="America/Chicago">Central Time</option>
-                <option value="America/Denver">Mountain Time</option>
-                <option value="America/Los_Angeles">Pacific Time</option>
-                <option value="America/Anchorage">Alaska Time</option>
-                <option value="Pacific/Honolulu">Hawaii Time</option>
-                <option value="Europe/London">London (GMT)</option>
-                <option value="Europe/Paris">Central European Time</option>
-                <option value="Asia/Tokyo">Tokyo</option>
-                <option value="Asia/Shanghai">Beijing/Shanghai</option>
-                <option value="Australia/Sydney">Sydney</option>
-                <option value="UTC">UTC</option>
-              </select>
-            </div>
-
-            {/* Location */}
-            <div className="space-y-2">
-              <Label htmlFor="location" className="text-base font-semibold flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-green-500" />
-                Location
-              </Label>
-              <AddressAutocomplete
-                id="location"
-                placeholder="123 Party Street, Chicago, IL"
-                value={location}
-                onChange={setLocation}
-                className="border-2 focus:border-green-400"
-              />
-            </div>
-
-            {/* Description */}
-            <div className="space-y-2">
-              <Label htmlFor="description" className="text-base font-semibold">
-                Description
-              </Label>
-              <Textarea
-                id="description"
-                placeholder="Tell your guests what to expect..."
-                value={description}
-                onChange={e => setDescription(e.target.value)}
-                rows={4}
-                className="border-2 focus:border-purple-400 resize-none"
-              />
-            </div>
-
-            {/* RSVP Deadline */}
-            <div className="space-y-2">
-              <Label className="text-base font-semibold">RSVP Deadline (Optional)</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      'w-full justify-start text-left font-normal border-2 focus:border-orange-400 h-11',
-                      !rsvpDeadline && 'text-muted-foreground'
-                    )}
-                  >
-                    <Calendar className="mr-2 h-4 w-4" />
-                    {rsvpDeadline ? format(rsvpDeadline, 'PPP') : <span>Pick a deadline</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <CalendarComponent
-                    mode="single"
-                    selected={rsvpDeadline}
-                    onSelect={setRsvpDeadline}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            {/* Special Instructions Section */}
-            <div className="border-4 border-yellow-300 rounded-2xl p-6 bg-gradient-to-br from-yellow-50 to-pink-50 space-y-4">
-              <h3 className="text-xl font-bold flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-yellow-600" />
-                Special Instructions
-              </h3>
-
-              {/* Additional Guests */}
-              <div className="bg-white/70 p-4 rounded-xl">
-                <Label className="text-base font-semibold">Additional Guests Allowed</Label>
-                <p className="text-sm text-gray-600 mt-1">
-                  Set to 0 if guests cannot bring additional people
-                </p>
-                <div className="flex items-center gap-3 mt-3">
-                  <Input
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    value={maxAdditionalGuests}
-                    onChange={e => {
-                      const val = e.target.value.replace(/\D/g, '');
-                      setMaxAdditionalGuests(val === '' ? 0 : parseInt(val));
-                    }}
-                    className="w-16 border-2 text-center"
-                  />
-                  <span className="text-sm text-gray-600">
-                    {maxAdditionalGuests === 0
-                      ? '(no additional guests)'
-                      : maxAdditionalGuests === 1
-                        ? 'guest per RSVP'
-                        : 'guests per RSVP'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Attire */}
-              <div className="space-y-2">
-                <Label htmlFor="attire" className="text-base font-semibold">
-                  Dress Code / Attire
-                </Label>
-                <Input
-                  id="attire"
-                  placeholder="e.g., Casual, Formal, Beach Wear, Costume"
-                  value={attire}
-                  onChange={e => setAttire(e.target.value)}
-                  className="bg-white/70 border-2"
-                />
-              </div>
-
-              {/* Custom Instructions */}
-              <div className="space-y-2">
-                <Label htmlFor="customInstructions" className="text-base font-semibold">
-                  Additional Instructions
-                </Label>
-                <Textarea
-                  id="customInstructions"
-                  placeholder="Any other details guests should know? Parking info, what to bring, etc."
-                  value={customInstructions}
-                  onChange={e => setCustomInstructions(e.target.value)}
-                  rows={3}
-                  className="bg-white/70 border-2 resize-none"
-                />
-              </div>
-
-              {/* Custom URL Slug */}
-              <div className="space-y-2">
-                <Label htmlFor="slug" className="text-base font-semibold">
-                  Custom URL (Optional)
-                </Label>
-                <p className="text-sm text-gray-600 mb-2">
-                  Create a memorable link for sharing (e.g., "emmas-1st-birthday")
-                </p>
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-500 text-sm whitespace-nowrap">
-                    felicito.app/p/invitation/
-                  </span>
-                  <div className="relative flex-1">
-                    <Input
-                      id="slug"
-                      type="text"
-                      placeholder="custom-url-name"
-                      value={slug}
-                      onChange={e =>
-                        setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))
-                      }
-                      className={`bg-white/70 border-2 pr-10 ${
-                        slugError
-                          ? 'border-red-400 focus:border-red-500'
-                          : slugValid
-                            ? 'border-green-400 focus:border-green-500'
-                            : 'focus:border-purple-400'
-                      }`}
-                    />
-                    {slugChecking && (
-                      <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-gray-400" />
-                    )}
-                    {!slugChecking && slugError && (
-                      <AlertCircle className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-red-500" />
-                    )}
-                    {!slugChecking && slugValid && (
-                      <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
-                    )}
-                  </div>
-                </div>
-                {slugError ? (
-                  <p className="text-xs text-red-500 mt-1">{slugError}</p>
-                ) : (
-                  <p className="text-xs text-gray-500 mt-1">
-                    Only lowercase letters, numbers, and hyphens allowed
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="pt-4 flex flex-col sm:flex-row sm:justify-end gap-3">
-              <Button
-                variant="outline"
-                onClick={() => navigate(`/invitation/${id}`)}
-                className="w-full sm:w-auto border-2 hover:border-gray-400 font-bold text-lg h-14"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSave}
-                disabled={saving || !!slugError || slugChecking}
-                tone={productById.invitation.tone}
-                size="xl"
-                className="w-full sm:w-auto text-lg h-14"
-              >
-                {saving ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {id && (
-          <InvitationRegistryLink
-            invitationExternalId={id}
-            registryExternalId={data?.invitation?.registry?.externalId}
-            title={data?.invitation?.title}
-            eventDate={data?.invitation?.eventDate}
+      <FormSection title="The basics" icon={PartyPopper}>
+        <Field label="Event title" htmlFor="title" required>
+          <Input
+            id="title"
+            placeholder="e.g., Summer Pool Party"
+            value={title}
+            onChange={e => setTitle(e.target.value)}
           />
-        )}
+        </Field>
 
-        {/* RSVP Management Section */}
-        {data?.invitation?.rsvps && (
-          <div className="mt-8">
-            <RSVPManagement
-              rsvps={data.invitation.rsvps}
-              rsvpCounts={
-                data.invitation.rsvpCounts || {
-                  going: 0,
-                  maybe: 0,
-                  notGoing: 0,
-                  total: 0,
-                  totalAttendees: 0,
-                }
-              }
-              invitationTitle={title}
-            />
+        <Field label="Cover image">
+          {coverImage ? (
+            <div className="relative w-full">
+              <img
+                src={coverImage instanceof Blob ? URL.createObjectURL(coverImage) : coverImage}
+                alt="Cover"
+                className="h-64 w-full rounded-xl border-2 border-ink object-cover"
+              />
+              <Button
+                type="button"
+                size="icon"
+                tone="paper"
+                className="absolute top-3 right-3"
+                onClick={() => setCoverImage(null)}
+                aria-label="Remove cover image"
+              >
+                <X />
+              </Button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setCoverDialogOpen(true)}
+              className="flex h-40 w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-ink bg-brand-green-soft text-[#1d1b2f] transition-transform hover:-translate-y-0.5"
+            >
+              <Upload className="size-6" />
+              <span className="text-sm font-semibold">Add a cover image</span>
+            </button>
+          )}
+        </Field>
+      </FormSection>
+
+      <FormSection
+        title="Opening screen"
+        icon={Wand2}
+        description="An animated intro your guests see before the invitation opens."
+      >
+        {openingMessageConfig && (
+          <div className="rounded-xl border-2 border-ink bg-brand-green-soft p-4 text-[#1d1b2f]">
+            <p className="text-lg font-semibold">&ldquo;{openingMessageConfig.text.title}&rdquo;</p>
+            {openingMessageConfig.text.subtitle && (
+              <p className="mt-1 text-sm opacity-80">{openingMessageConfig.text.subtitle}</p>
+            )}
           </div>
         )}
+        <Button type="button" variant="outline" onClick={() => setOpeningEditorOpen(true)}>
+          <Wand2 />
+          {openingMessageConfig ? 'Edit opening screen' : 'Customize opening screen'}
+        </Button>
+      </FormSection>
 
-        {id && data?.invitation?.rsvpCounts && data.invitation.eventDate && (
-          <RemindGuests
-            invitationExternalId={id}
-            eventDate={data.invitation.eventDate}
-            going={data.invitation.rsvpCounts.going}
-            maybe={data.invitation.rsvpCounts.maybe}
-            nextReminderAt={data.invitation.nextReminderAt}
+      <FormSection title="When & where" icon={Calendar}>
+        {/* Date and Time Row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label className="text-base font-semibold flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              Date <span className="text-destructive">*</span>
+            </Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className={cn(INPUT_LIKE, !eventDate && 'text-muted-foreground')}
+                >
+                  <Calendar className="size-4 opacity-60" />
+                  {eventDate ? format(eventDate, 'PPP') : <span>Pick a date</span>}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <CalendarComponent
+                  mode="single"
+                  selected={eventDate}
+                  onSelect={setEventDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-base font-semibold flex items-center gap-2">
+              <Clock className="w-4 h-4" />
+              Time <span className="text-destructive">*</span>
+            </Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className={cn(INPUT_LIKE, !eventTime && 'text-muted-foreground')}
+                >
+                  <Clock className="size-4 opacity-60" />
+                  {eventTime ? (
+                    (() => {
+                      const [hours, minutes] = eventTime.split(':');
+                      const hour = parseInt(hours);
+                      const period = hour >= 12 ? 'pm' : 'am';
+                      const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+                      return `${displayHour}:${minutes}${period}`;
+                    })()
+                  ) : (
+                    <span>Pick a time</span>
+                  )}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[140px] p-0" align="start">
+                <div className="max-h-[280px] overflow-y-auto">
+                  {Array.from({ length: 96 }, (_, i) => {
+                    const totalMinutes = i * 15;
+                    const hours = Math.floor(totalMinutes / 60);
+                    const minutes = totalMinutes % 60;
+                    const period = hours >= 12 ? 'pm' : 'am';
+                    const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+                    const militaryTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                    const displayTime = `${displayHour}:${minutes.toString().padStart(2, '0')}${period}`;
+
+                    return (
+                      <button
+                        key={militaryTime}
+                        onClick={() => setEventTime(militaryTime)}
+                        className={cn(
+                          'w-full px-4 py-3 text-left hover:bg-accent transition-colors border-b last:border-b-0',
+                          eventTime === militaryTime && 'bg-accent font-semibold'
+                        )}
+                      >
+                        {displayTime}
+                      </button>
+                    );
+                  })}
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+        </div>
+
+        {/* Timezone */}
+        <div className="space-y-2">
+          <Label htmlFor="timezone" className="text-base font-semibold flex items-center gap-2">
+            <Clock className="w-4 h-4" />
+            Timezone
+          </Label>
+          <select
+            id="timezone"
+            value={eventTimezone}
+            onChange={e => setEventTimezone(e.target.value)}
+            className={INPUT_LIKE}
+          >
+            <option value="America/New_York">Eastern Time</option>
+            <option value="America/Chicago">Central Time</option>
+            <option value="America/Denver">Mountain Time</option>
+            <option value="America/Los_Angeles">Pacific Time</option>
+            <option value="America/Anchorage">Alaska Time</option>
+            <option value="Pacific/Honolulu">Hawaii Time</option>
+            <option value="Europe/London">London (GMT)</option>
+            <option value="Europe/Paris">Central European Time</option>
+            <option value="Asia/Tokyo">Tokyo</option>
+            <option value="Asia/Shanghai">Beijing/Shanghai</option>
+            <option value="Australia/Sydney">Sydney</option>
+            <option value="UTC">UTC</option>
+          </select>
+        </div>
+
+        {/* Location */}
+        <div className="space-y-2">
+          <Label htmlFor="location" className="text-base font-semibold flex items-center gap-2">
+            <MapPin className="w-4 h-4" />
+            Location
+          </Label>
+          <AddressAutocomplete
+            id="location"
+            placeholder="123 Party Street, Chicago, IL"
+            value={location}
+            onChange={setLocation}
+            className="border-2"
           />
-        )}
+        </div>
 
-        {/* Cover Image Dialog */}
-        <CoverImageDialog
-          open={coverDialogOpen}
-          onOpenChange={setCoverDialogOpen}
-          onSelectCover={cover => {
-            setCoverImage(cover);
-            setCoverDialogOpen(false);
-          }}
-        />
+        {/* Description */}
+        <div className="space-y-2">
+          <Label htmlFor="description" className="text-base font-semibold">
+            Description
+          </Label>
+          <Textarea
+            id="description"
+            placeholder="Tell your guests what to expect..."
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            rows={4}
+            className="border-2 resize-none"
+          />
+        </div>
 
-        {/* Opening Message Editor */}
-        <OpeningMessageEditor
-          open={openingEditorOpen}
-          onOpenChange={setOpeningEditorOpen}
-          value={openingMessageConfig}
-          onChange={setOpeningMessageConfig}
+        {/* RSVP Deadline */}
+        <div className="space-y-2">
+          <Label className="text-base font-semibold">RSVP Deadline (Optional)</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                className={cn(INPUT_LIKE, !rsvpDeadline && 'text-muted-foreground')}
+              >
+                <Calendar className="size-4 opacity-60" />
+                {rsvpDeadline ? format(rsvpDeadline, 'PPP') : <span>Pick a deadline</span>}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <CalendarComponent
+                mode="single"
+                selected={rsvpDeadline}
+                onSelect={setRsvpDeadline}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+      </FormSection>
+
+      <FormSection title="Guest details" icon={ListChecks}>
+        {/* Additional Guests */}
+        <div className="space-y-2">
+          <Label className="text-base font-semibold">Additional guests allowed</Label>
+          <p className="text-sm text-muted-foreground">
+            Set to 0 if guests cannot bring additional people.
+          </p>
+          <div className="flex items-center gap-3">
+            <Input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={maxAdditionalGuests}
+              onChange={e => {
+                const val = e.target.value.replace(/\D/g, '');
+                setMaxAdditionalGuests(val === '' ? 0 : parseInt(val));
+              }}
+              className="w-16 text-center"
+            />
+            <span className="text-sm text-muted-foreground">
+              {maxAdditionalGuests === 0
+                ? '(no additional guests)'
+                : maxAdditionalGuests === 1
+                  ? 'guest per RSVP'
+                  : 'guests per RSVP'}
+            </span>
+          </div>
+        </div>
+
+        {/* Attire */}
+        <div className="space-y-2">
+          <Label htmlFor="attire" className="text-base font-semibold">
+            Dress Code / Attire
+          </Label>
+          <Input
+            id="attire"
+            placeholder="e.g., Casual, Formal, Beach Wear, Costume"
+            value={attire}
+            onChange={e => setAttire(e.target.value)}
+          />
+        </div>
+
+        {/* Custom Instructions */}
+        <div className="space-y-2">
+          <Label htmlFor="customInstructions" className="text-base font-semibold">
+            Additional Instructions
+          </Label>
+          <Textarea
+            id="customInstructions"
+            placeholder="Any other details guests should know? Parking info, what to bring, etc."
+            value={customInstructions}
+            onChange={e => setCustomInstructions(e.target.value)}
+            rows={3}
+            className="resize-none"
+          />
+        </div>
+
+        {/* Custom URL Slug */}
+        <div className="space-y-2">
+          <Label htmlFor="slug" className="text-base font-semibold">
+            Custom URL <span className="font-normal text-muted-foreground">(optional)</span>
+          </Label>
+          <p className="text-sm text-muted-foreground">
+            Create a memorable link for sharing (e.g., "emmas-1st-birthday")
+          </p>
+          <div className="flex items-center gap-2">
+            <span className="text-sm whitespace-nowrap text-muted-foreground">
+              felicito.app/p/invitation/
+            </span>
+            <div className="relative flex-1">
+              <Input
+                id="slug"
+                type="text"
+                placeholder="custom-url-name"
+                value={slug}
+                onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                aria-invalid={!!slugError || undefined}
+                className="pr-10"
+              />
+              {slugChecking && (
+                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-muted-foreground" />
+              )}
+              {!slugChecking && slugError && (
+                <AlertCircle className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-destructive" />
+              )}
+              {!slugChecking && slugValid && (
+                <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-green" />
+              )}
+            </div>
+          </div>
+          {slugError ? (
+            <p className="text-xs text-destructive">{slugError}</p>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              Only lowercase letters, numbers, and hyphens allowed
+            </p>
+          )}
+        </div>
+      </FormSection>
+
+      <FormActions>
+        <Button
+          type="button"
+          variant="ghost"
+          size="lg"
+          onClick={() => navigate(`/invitation/${id}`)}
+        >
+          Cancel
+        </Button>
+        <Button
+          onClick={handleSave}
+          disabled={saving || !!slugError || slugChecking}
+          tone={productById.invitation.tone}
+          size="lg"
+        >
+          {saving ? 'Saving…' : 'Save changes'}
+        </Button>
+      </FormActions>
+
+      {id && (
+        <InvitationRegistryLink
+          invitationExternalId={id}
+          registryExternalId={data?.invitation?.registry?.externalId}
+          title={data?.invitation?.title}
+          eventDate={data?.invitation?.eventDate}
         />
-      </div>
-    </div>
+      )}
+
+      {/* RSVP Management Section */}
+      {data?.invitation?.rsvps && (
+        <div>
+          <RSVPManagement
+            rsvps={data.invitation.rsvps}
+            rsvpCounts={
+              data.invitation.rsvpCounts || {
+                going: 0,
+                maybe: 0,
+                notGoing: 0,
+                total: 0,
+                totalAttendees: 0,
+              }
+            }
+            invitationTitle={title}
+          />
+        </div>
+      )}
+
+      {id && data?.invitation?.rsvpCounts && data.invitation.eventDate && (
+        <RemindGuests
+          invitationExternalId={id}
+          eventDate={data.invitation.eventDate}
+          going={data.invitation.rsvpCounts.going}
+          maybe={data.invitation.rsvpCounts.maybe}
+          nextReminderAt={data.invitation.nextReminderAt}
+        />
+      )}
+
+      {/* Cover Image Dialog */}
+      <CoverImageDialog
+        open={coverDialogOpen}
+        onOpenChange={setCoverDialogOpen}
+        onSelectCover={cover => {
+          setCoverImage(cover);
+          setCoverDialogOpen(false);
+        }}
+      />
+
+      {/* Opening Message Editor */}
+      <OpeningMessageEditor
+        open={openingEditorOpen}
+        onOpenChange={setOpeningEditorOpen}
+        value={openingMessageConfig}
+        onChange={setOpeningMessageConfig}
+      />
+    </FormPage>
   );
 };
 

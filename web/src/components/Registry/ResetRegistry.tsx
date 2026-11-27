@@ -47,7 +47,7 @@ export const ResetRegistry: React.FC<Props> = ({ externalId, onReset }) => {
   };
 
   return (
-    <Card className="mt-6">
+    <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <RotateCcw className="h-5 w-5 text-gray-500" />

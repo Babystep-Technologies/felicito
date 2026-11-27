@@ -98,7 +98,7 @@ export const CoverImage: React.FC<Props> = ({ externalId, coverImageUrl, onChang
   };
 
   return (
-    <Card className="mb-6">
+    <Card>
       <CardHeader>
         <CardTitle>Cover image</CardTitle>
       </CardHeader>

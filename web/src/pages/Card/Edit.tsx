@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
+import { ArrowLeft, Eye, PenLine, Settings2 } from 'lucide-react';
+import { Field, FormActions, FormPage, FormSection } from '@/components/form/FormKit';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { useParams } from 'react-router-dom';
@@ -496,165 +496,145 @@ function PageEdit() {
     );
   }
 
+  if (isCreator && editingSettings) {
+    return (
+      <FormPage
+        product="group"
+        title="Card settings"
+        subtitle="Change who it's for, how it looks, and who can sign."
+        headerAction={
+          <Button variant="outline" onClick={() => setEditingSettings(false)}>
+            <ArrowLeft />
+            Back to your message
+          </Button>
+        }
+      >
+        <EditCardSettings
+          cardTitle={cardTitle}
+          occasion={occasion}
+          occasions={occasions}
+          setOccasion={setOccasion}
+          contributorPrompt={contributorPrompt}
+          setContributorPrompt={setContributorPrompt}
+          setCardTitle={setCardTitle}
+          recipients={recipients}
+          handleRecipientChange={handleRecipientChange}
+          handleRemoveRecipient={handleRemoveRecipient}
+          handleAddRecipient={handleAddRecipient}
+          backgroundColorStyles={backgroundColorStyles}
+          selectedBackgroundColorId={selectedBackgroundColorId}
+          setSelectedBackgroundColorId={setSelectedBackgroundColorId}
+          textColorStyles={textColorStyles}
+          selectedTextColorId={selectedTextColorId}
+          setSelectedTextColorId={setSelectedTextColorId}
+          handleUpdateCard={handleUpdateCard}
+          setEditingSettings={setEditingSettings}
+          coverImage={coverImage}
+          setCoverImage={setCoverImage}
+          cardId={cardExternalId!}
+          refetchCard={refetch}
+          maxMessages={maxMessages}
+          setMaxMessages={setMaxMessages}
+          requireLoginToContribute={requireLoginToContribute}
+          setRequireLoginToContribute={setRequireLoginToContribute}
+          slug={slug}
+          setSlug={setSlug}
+          registryExternalId={registryExternalId}
+          setRegistryExternalId={setRegistryExternalId}
+        />
+      </FormPage>
+    );
+  }
+
   return (
-    <div>
-      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-pink-50 to-blue-50 px-4 py-6 sm:px-10 sm:py-10">
-        <Toaster />
-        <Card className="w-full sm:max-w-4xl mx-auto p-4 sm:p-6 shadow-xl border-2 border-gray-200 bg-white/95 backdrop-blur">
-          <CardHeader>
-            {isCreator && !editingSettings ? (
-              <>
-                <h1
-                  className="text-3xl font-bold cursor-pointer hover:underline transition hover:opacity-90"
-                  onClick={() => navigate(`/card/${cardExternalId}/editable`)}
-                >
-                  {cardTitle}
-                </h1>
-                <div className="mt-4 flex flex-col sm:flex-row sm:items-start sm:gap-4">
-                  <Button
-                    className="w-full sm:w-[220px] mb-2 sm:mb-0 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 font-semibold"
-                    onClick={() => setEditingSettings(true)}
-                  >
-                    Change Card Settings
-                  </Button>
-                </div>
-              </>
-            ) : isCreator && editingSettings ? (
-              <EditCardSettings
-                cardTitle={cardTitle}
-                occasion={occasion}
-                occasions={occasions}
-                setOccasion={setOccasion}
-                contributorPrompt={contributorPrompt}
-                setContributorPrompt={setContributorPrompt}
-                setCardTitle={setCardTitle}
-                recipients={recipients}
-                handleRecipientChange={handleRecipientChange}
-                handleRemoveRecipient={handleRemoveRecipient}
-                handleAddRecipient={handleAddRecipient}
-                backgroundColorStyles={backgroundColorStyles}
-                selectedBackgroundColorId={selectedBackgroundColorId}
-                setSelectedBackgroundColorId={setSelectedBackgroundColorId}
-                textColorStyles={textColorStyles}
-                selectedTextColorId={selectedTextColorId}
-                setSelectedTextColorId={setSelectedTextColorId}
-                handleUpdateCard={handleUpdateCard}
-                setEditingSettings={setEditingSettings}
-                coverImage={coverImage}
-                setCoverImage={setCoverImage}
-                cardId={cardExternalId!}
-                refetchCard={refetch}
-                maxMessages={maxMessages}
-                setMaxMessages={setMaxMessages}
-                requireLoginToContribute={requireLoginToContribute}
-                setRequireLoginToContribute={setRequireLoginToContribute}
-                slug={slug}
-                setSlug={setSlug}
-                registryExternalId={registryExternalId}
-                setRegistryExternalId={setRegistryExternalId}
-              />
-            ) : (
-              <h1
-                className="text-3xl font-bold cursor-pointer hover:underline transition hover:opacity-90"
-                onClick={() => navigate(`/card/${cardExternalId}/editable`)}
-              >
-                {cardTitle}
-              </h1>
-            )}
-          </CardHeader>
+    <FormPage
+      product="group"
+      title={cardTitle}
+      subtitle="Add your message to the card."
+      headerAction={
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={() => navigate(`/card/${cardExternalId}/editable`)}>
+            <Eye />
+            View card
+          </Button>
+          {isCreator && (
+            <Button variant="outline" onClick={() => setEditingSettings(true)}>
+              <Settings2 />
+              Card settings
+            </Button>
+          )}
+        </div>
+      }
+    >
+      <Toaster />
 
-          <CardContent>
-            {!editingSettings && (
-              <div>
-                {/* Message Text Area Section */}
-                <div className="mb-6 space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="message-title" className="text-base font-semibold">
-                      Message Title (Optional)
-                    </Label>
-                    <Input
-                      id="message-title"
-                      value={messageTitle}
-                      onChange={handleMessageTitleChange}
-                      placeholder="Give your message a title..."
-                      className="w-full border-2 focus:border-purple-400"
-                    />
-                    {titleError && <p className="text-sm text-red-500 mt-1">{titleError}</p>}
-                  </div>
+      <FormSection title="Your message" icon={PenLine}>
+        <Field label="Message title" htmlFor="message-title" optional>
+          <Input
+            id="message-title"
+            value={messageTitle}
+            onChange={handleMessageTitleChange}
+            placeholder="Give your message a title…"
+          />
+          {titleError && <p className="text-sm text-destructive">{titleError}</p>}
+        </Field>
 
-                  {/* Display Name Field - only for logged in users */}
-                  {user && (
-                    <div className="space-y-2">
-                      <Label htmlFor="display-name" className="text-base font-semibold">
-                        Display Name
-                      </Label>
-                      <Input
-                        id="display-name"
-                        value={displayName}
-                        onChange={e => setDisplayName(e.target.value)}
-                        placeholder="How should your name appear on this message?"
-                        className="w-full border-2 focus:border-blue-400"
-                      />
-                    </div>
-                  )}
+        {/* Only signed-in contributors choose how their name appears. */}
+        {user && (
+          <Field label="Display name" htmlFor="display-name">
+            <Input
+              id="display-name"
+              value={displayName}
+              onChange={e => setDisplayName(e.target.value)}
+              placeholder="How should your name appear on this message?"
+            />
+          </Field>
+        )}
 
-                  <div className="space-y-2">
-                    <Label htmlFor="message" className="text-base font-semibold">
-                      Your Message
-                    </Label>
-                    {!isCreator && contributorPrompt.trim() && (
-                      <div className="rounded-lg border-l-4 border-purple-400 bg-purple-50 px-4 py-3">
-                        <p className="text-sm font-semibold text-purple-700">
-                          A note from the card creator
-                        </p>
-                        <p className="mt-1 text-sm text-purple-900 whitespace-pre-line">
-                          {contributorPrompt}
-                        </p>
-                      </div>
-                    )}
-                    <Textarea
-                      id="message"
-                      value={text}
-                      onChange={handleTextChange}
-                      placeholder="Write your heartfelt message here..."
-                      className="w-full border-2 focus:border-pink-400 resize-none"
-                      style={{ height: '35vh' }}
-                    />
-                    {textError && <p className="text-sm text-red-500 mt-1">{textError}</p>}
-                    <MessageImageField
-                      imagePreview={imagePreview}
-                      setImageFile={setImageFile}
-                      setImageUrl={setImageUrl}
-                      setImagePreview={setImagePreview}
-                      setCroppedAreaPixels={setCroppedAreaPixels}
-                      uploadError={uploadError}
-                      setUploadError={setUploadError}
-                      crop={crop}
-                      setCrop={setCrop}
-                      zoom={zoom}
-                      setZoom={setZoom}
-                    />
-                  </div>
-                </div>
+        <Field label="Your message" htmlFor="message">
+          {!isCreator && contributorPrompt.trim() && (
+            <div className="rounded-xl border-2 border-ink bg-brand-pink-soft px-4 py-3 text-[#1d1b2f]">
+              <p className="text-sm font-semibold">A note from the card creator</p>
+              <p className="mt-1 text-sm whitespace-pre-line">{contributorPrompt}</p>
+            </div>
+          )}
+          <Textarea
+            id="message"
+            value={text}
+            onChange={handleTextChange}
+            placeholder="Write your heartfelt message here…"
+            className="resize-none"
+            style={{ height: '35vh' }}
+          />
+          {textError && <p className="text-sm text-destructive">{textError}</p>}
+          <MessageImageField
+            imagePreview={imagePreview}
+            setImageFile={setImageFile}
+            setImageUrl={setImageUrl}
+            setImagePreview={setImagePreview}
+            setCroppedAreaPixels={setCroppedAreaPixels}
+            uploadError={uploadError}
+            setUploadError={setUploadError}
+            crop={crop}
+            setCrop={setCrop}
+            zoom={zoom}
+            setZoom={setZoom}
+          />
+        </Field>
+      </FormSection>
 
-                <CardFooter className="flex justify-center pt-6">
-                  <Button
-                    type="submit"
-                    disabled={!isCardMessageValid || submitting}
-                    onClick={handleUpsertMessage}
-                    tone={productById.group.tone}
-                    size="xl"
-                    className="w-full sm:w-auto text-lg py-6 px-8"
-                  >
-                    {submitting ? 'Submitting...' : 'Submit Message'}
-                  </Button>
-                </CardFooter>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+      <FormActions>
+        <Button
+          type="submit"
+          disabled={!isCardMessageValid || submitting}
+          onClick={handleUpsertMessage}
+          tone={productById.group.tone}
+          size="lg"
+        >
+          {submitting ? 'Submitting…' : 'Add my message'}
+        </Button>
+      </FormActions>
+    </FormPage>
   );
 }
 
