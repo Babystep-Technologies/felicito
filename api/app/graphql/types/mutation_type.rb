@@ -85,7 +85,6 @@ module Types
     field :set_annual_goals, mutation: Mutations::SetAnnualGoals
     field :create_organization_style, mutation: Mutations::CreateOrganizationStyle
     field :archive_organization_style, mutation: Mutations::ArchiveOrganizationStyle
-    field :update_return_address, mutation: Mutations::UpdateReturnAddress
     field :create_support_ticket, mutation: Mutations::CreateSupportTicket
     field :reply_to_support_ticket, mutation: Mutations::ReplyToSupportTicket
     field :reply_to_support_ticket_by_admin, mutation: Mutations::ReplyToSupportTicketByAdmin

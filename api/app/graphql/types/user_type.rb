@@ -13,16 +13,6 @@ module Types
     # Null means Personal — a valid context, not a missing organization.
     field :active_organization, Types::OrganizationType, null: true
     field :organization_memberships, [ Types::OrganizationMembershipType ], null: false
-    # The user's own mailing address (#233). Null for anyone but the user themself: `UserType` is also
-    # `Queries::User`'s shape (any signed-in caller, by id, no ownership
-    # check), and a home address is not something `creditBalance` or `email`
-    # already being exposed there excuses leaking too.
-    field :return_address, Types::ReturnAddressType, null: true
-
-    def return_address
-      object if object == context[:current_user]
-    end
-
     # Archived organizations keep their membership rows (deleteOrganization is a
     # soft delete), so filter them out here rather than handing the org switcher
     # entries whose `organization` is null.

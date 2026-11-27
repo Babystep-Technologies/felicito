@@ -94,9 +94,6 @@ into registries (`FoldInvitationWishListsIntoRegistries`) is one-way.
   owner's *thank-you list* (`thankYouList`) stays locked in surprise mode until `event_date` has
   passed. A hidden (`visible: false`) registry reads as missing to everyone but its owner, in
   GraphQL and in the `/p/registry/:id` share preview alike.
-- **Ship-to address.** Opt-in per registry (`share_address`, default off). The owner's profile
-  address (`HasReturnAddress`) is returned only through `WishListClaimType#ship_to`, for a valid
-  claim token while sharing is on, and each reveal is logged. It is never a field on `WishListType`.
 - **Anonymous access.** Guests have no account. `GraphqlController::PUBLIC_OPERATIONS` is an
   allow-list of *operation names*, so a new guest-facing query must be named to match
   (`GetRegistry`, `GetWishListClaim`, `ReserveWishListItem`, ...). Anything else returns 401.

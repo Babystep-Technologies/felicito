@@ -1076,9 +1076,6 @@ class WishList
     def restore_remind_owner!; end
 
     sig { void }
-    def restore_share_address!; end
-
-    sig { void }
     def restore_surprise_mode!; end
 
     sig { void }
@@ -1154,12 +1151,6 @@ class WishList
     def saved_change_to_remind_owner?; end
 
     sig { returns(T.nilable([T::Boolean, T::Boolean])) }
-    def saved_change_to_share_address; end
-
-    sig { returns(T::Boolean) }
-    def saved_change_to_share_address?; end
-
-    sig { returns(T.nilable([T::Boolean, T::Boolean])) }
     def saved_change_to_surprise_mode; end
 
     sig { returns(T::Boolean) }
@@ -1188,51 +1179,6 @@ class WishList
 
     sig { returns(T::Boolean) }
     def saved_change_to_visible?; end
-
-    sig { returns(T::Boolean) }
-    def share_address; end
-
-    sig { params(value: T::Boolean).returns(T::Boolean) }
-    def share_address=(value); end
-
-    sig { returns(T::Boolean) }
-    def share_address?; end
-
-    sig { returns(T.nilable(T::Boolean)) }
-    def share_address_before_last_save; end
-
-    sig { returns(T.untyped) }
-    def share_address_before_type_cast; end
-
-    sig { returns(T::Boolean) }
-    def share_address_came_from_user?; end
-
-    sig { returns(T.nilable([T::Boolean, T::Boolean])) }
-    def share_address_change; end
-
-    sig { returns(T.nilable([T::Boolean, T::Boolean])) }
-    def share_address_change_to_be_saved; end
-
-    sig { params(from: T::Boolean, to: T::Boolean).returns(T::Boolean) }
-    def share_address_changed?(from: T.unsafe(nil), to: T.unsafe(nil)); end
-
-    sig { returns(T.nilable(T::Boolean)) }
-    def share_address_in_database; end
-
-    sig { returns(T.nilable([T::Boolean, T::Boolean])) }
-    def share_address_previous_change; end
-
-    sig { params(from: T::Boolean, to: T::Boolean).returns(T::Boolean) }
-    def share_address_previously_changed?(from: T.unsafe(nil), to: T.unsafe(nil)); end
-
-    sig { returns(T.nilable(T::Boolean)) }
-    def share_address_previously_was; end
-
-    sig { returns(T.nilable(T::Boolean)) }
-    def share_address_was; end
-
-    sig { void }
-    def share_address_will_change!; end
 
     sig { returns(T::Boolean) }
     def surprise_mode; end
@@ -1488,9 +1434,6 @@ class WishList
 
     sig { returns(T::Boolean) }
     def will_save_change_to_remind_owner?; end
-
-    sig { returns(T::Boolean) }
-    def will_save_change_to_share_address?; end
 
     sig { returns(T::Boolean) }
     def will_save_change_to_surprise_mode?; end

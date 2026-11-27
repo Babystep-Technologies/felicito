@@ -9,7 +9,6 @@ import React, { useEffect, useState } from 'react';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Toaster, toast } from 'sonner';
-import { Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -28,6 +27,7 @@ import {
 } from '@/components/ui/select';
 import LoadingScreen from '@/components/Loading';
 import ErrorScreen from '@/components/Error';
+import { FormActions, FormPage } from '@/components/form/FormKit';
 import withAuth from '@/lib/with-auth';
 import WishListFields from '@/components/Registry/WishListFields';
 import { SET_INVITATION_REGISTRY } from '@/pages/Invitation/components/InvitationRegistryLink';
@@ -160,14 +160,10 @@ const RegistryEdit: React.FC = () => {
   if (error || (!isNew && !data?.registry)) return <ErrorScreen />;
 
   return (
-    <div className="mx-auto max-w-3xl p-4 sm:p-8">
+    <FormPage product="registry" title={isNew ? 'Create a registry' : 'Edit your registry'}>
       <Toaster />
-      <h1 className="mb-6 flex items-center gap-3 text-3xl font-bold text-gray-900">
-        <Gift className="h-8 w-8 text-yellow-500" />
-        {isNew ? 'Create a registry' : 'Edit your registry'}
-      </h1>
 
-      <Card className="mb-6">
+      <Card>
         <CardHeader>
           <CardTitle>What&apos;s the occasion?</CardTitle>
         </CardHeader>
@@ -204,7 +200,7 @@ const RegistryEdit: React.FC = () => {
         </CardContent>
       </Card>
 
-      <p className="-mt-3 mb-6 text-sm text-gray-600">
+      <p className="-mt-3 text-sm text-muted-foreground">
         Shopping elsewhere?{' '}
         <Link to="/registry/add" className="font-semibold underline">
           Get the add-from-any-store button
@@ -221,7 +217,7 @@ const RegistryEdit: React.FC = () => {
       )}
 
       {suggestions.length > 0 && (
-        <Card className="mb-6">
+        <Card>
           <CardHeader>
             <CardTitle>Ideas to start with</CardTitle>
           </CardHeader>
@@ -252,22 +248,6 @@ const RegistryEdit: React.FC = () => {
             visibilityLabel="Share this registry"
             extraSettings={
               <>
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <Label htmlFor="registryShareAddress" className="text-base font-semibold">
-                      Share my mailing address with guests who claim a gift
-                    </Label>
-                    <p className="text-sm text-gray-500">
-                      Only people who claim an item see it, and only while this is on. It uses the
-                      address saved on your profile.
-                    </p>
-                  </div>
-                  <Switch
-                    id="registryShareAddress"
-                    checked={draft.shareAddress}
-                    onCheckedChange={shareAddress => setDraft({ ...draft, shareAddress })}
-                  />
-                </div>
                 <div className="space-y-2">
                   <Label htmlFor="registryPasscode" className="text-base font-semibold">
                     Passcode (optional)
@@ -319,18 +299,18 @@ const RegistryEdit: React.FC = () => {
               </>
             }
           />
-          <div className="flex justify-end pt-2">
-            <Button onClick={handleSave} disabled={saving} className="h-12 px-6 font-bold">
-              {saving ? 'Saving...' : isNew ? 'Create registry' : 'Save registry'}
+          <FormActions>
+            <Button onClick={handleSave} disabled={saving} tone="yellow" size="lg">
+              {saving ? 'Saving…' : isNew ? 'Create registry' : 'Save registry'}
             </Button>
-          </div>
+          </FormActions>
         </CardContent>
       </Card>
 
       {!isNew && externalId && <ShareQrCode externalId={externalId} />}
       {!isNew && externalId && <ThankYouList externalId={externalId} />}
       {!isNew && externalId && <ResetRegistry externalId={externalId} onReset={() => refetch()} />}
-    </div>
+    </FormPage>
   );
 };
 

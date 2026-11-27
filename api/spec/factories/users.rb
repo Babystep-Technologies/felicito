@@ -12,15 +12,5 @@ FactoryBot.define do
         user.credits.where(reason: "signup_bonus").destroy_all
       end
     end
-
-    # A complete mailing address. Users have none by default.
-    trait :with_return_address do
-      return_address_line1 { "123 Market St" }
-      return_address_line2 { "Apt 4" }
-      return_address_city { "San Francisco" }
-      return_address_region { "CA" }
-      return_address_postal_code { "94103" }
-      return_address_country_code { "US" }
-    end
   end
 end
