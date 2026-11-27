@@ -1,12 +1,12 @@
-import { Building2, CalendarClock, MessageSquare, type LucideIcon } from 'lucide-react';
+import { Building2, CalendarClock, Users, type LucideIcon } from 'lucide-react';
 
 // Business-audience entries shown in the "Business" nav dropdown (desktop + mobile).
 // Parallel to `products` for the Personal menu — copy and routes live here, not in JSX.
 //
-// Felicito serves two business use cases and the menu is shaped around them: group cards
-// a team starts from Slack, and a contact book that reminds an owner before a client's
-// occasion. Reminders belong to the second one only — the Slack app has no roster and
-// stores no dates, so no description here may imply it remembers anything on its own.
+// Felicito serves two business use cases and the menu is shaped around them: an
+// organization whose members share a pool of credits, and a contact book that reminds an
+// owner before a client's occasion. Reminders belong to the second one only — an
+// organization stores no dates, so no description here may imply it remembers anything.
 export interface BusinessLink {
   id: string;
   label: string;
@@ -19,11 +19,11 @@ export interface BusinessLink {
 
 export const businessLinks: BusinessLink[] = [
   {
-    id: 'slack',
-    label: 'Group cards in Slack',
-    description: 'Start a card with /felicito and let the whole team sign it.',
-    route: '/slack',
-    icon: MessageSquare,
+    id: 'organizations',
+    label: 'Organizations',
+    description: 'One pool of credits your whole team can use for cards and invitations.',
+    route: '/organizations/new',
+    icon: Users,
     colorVar: 'var(--color-brand-pink)',
   },
   {

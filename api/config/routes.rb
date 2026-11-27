@@ -3,12 +3,6 @@ Rails.application.routes.draw do
   post "/graphql", to: "graphql#execute"
   options "/graphql", to: "graphql#execute"
   post "/webhooks/stripe", to: "stripe_webhooks#create"
-  post "/webhooks/slack", to: "slack_webhooks#create"
-
-  # Slack OAuth installation callback
-  namespace :oauth do
-    get "slack/callback", to: "slack#callback"
-  end
 
   # Card preview routes (supports both external_id and custom slug)
   get "/p/card/:id/editable", to: "previews#card_editable", as: :editable_card_preview

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_26_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_27_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -450,25 +450,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_26_130000) do
     t.index ["user_id"], name: "index_rsvps_on_user_id"
   end
 
-  create_table "slack_installations", force: :cascade do |t|
-    t.string "access_token", null: false
-    t.datetime "created_at", null: false
-    t.string "team_id", null: false
-    t.string "team_name", null: false
-    t.datetime "updated_at", null: false
-    t.index ["team_id"], name: "index_slack_installations_on_team_id", unique: true
-  end
-
-  create_table "slack_user_connections", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.string "slack_team_id", null: false
-    t.string "slack_user_id", null: false
-    t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
-    t.index ["slack_user_id", "slack_team_id"], name: "idx_on_slack_user_id_slack_team_id_ce39740193", unique: true
-    t.index ["user_id"], name: "index_slack_user_connections_on_user_id"
-  end
-
   create_table "style_tags", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "style_id", null: false
@@ -666,7 +647,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_26_130000) do
   add_foreign_key "promo_codes", "users"
   add_foreign_key "rsvps", "invitations"
   add_foreign_key "rsvps", "users"
-  add_foreign_key "slack_user_connections", "users"
   add_foreign_key "style_tags", "styles"
   add_foreign_key "style_tags", "tags"
   add_foreign_key "styles", "organizations", on_delete: :cascade

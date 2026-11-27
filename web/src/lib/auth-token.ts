@@ -16,11 +16,3 @@ export const decodeValidToken = (token: string | null): JWTPayload | null => {
     return null;
   }
 };
-
-/** Query string with any `token` param removed, including the leading `?`. */
-export const searchWithoutToken = (search: string): string => {
-  const params = new URLSearchParams(search);
-  params.delete('token');
-  const rest = params.toString();
-  return rest ? `?${rest}` : '';
-};

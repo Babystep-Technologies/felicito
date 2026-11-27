@@ -28,8 +28,6 @@ import Maintenance from '@/pages/Maintenance';
 import Careers from '@/pages/Careers';
 import ForBusiness from '@/pages/ForBusiness';
 import ClientOccasions from '@/pages/ClientOccasions';
-import ConnectSlack from '@/pages/ConnectSlack';
-import Slack from '@/pages/Slack';
 import OrganizationNew from '@/pages/Organization/New';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
@@ -245,8 +243,6 @@ const App: React.FC = () => {
           <Route path="/for/*" element={<LegacyRedirect to="/" />} />
           <Route path="/occasions" element={<LegacyRedirect to="/" />} />
 
-          <Route path="/slack" element={<Slack />} />
-          <Route path="/connect-slack" element={<ConnectSlack />} />
           <Route path="/for-business" element={<ForBusiness />} />
           <Route path="/client-occasions" element={<ClientOccasions />} />
           {/* `/for-teams` was the business page before it covered both use cases. */}

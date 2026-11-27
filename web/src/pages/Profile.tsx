@@ -6,7 +6,6 @@ import { gql, useMutation, useQuery } from '@apollo/client';
 import { Card, CardTitle, CardHeader, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CREDIT_PLANS } from '@/lib/constants';
-import { slackInstallUrl } from '@/lib/slack';
 import LoadingScreen from '@/components/Loading';
 import ErrorScreen from '@/components/Error';
 import { LoaderCircle } from 'lucide-react';
@@ -156,27 +155,6 @@ function Profile() {
                   ))}
                 </div>
               )}
-
-              <hr />
-
-              <div className="space-y-2">
-                <p className="text-sm text-gray-500">Slack Integration</p>
-                <p className="text-sm text-gray-700">
-                  Install the Felicito Slack app to create cards directly from Slack using{' '}
-                  <code className="bg-gray-100 px-1 rounded">
-                    /felicito create for &lt;name&gt;
-                  </code>
-                </p>
-                <a href={slackInstallUrl()}>
-                  <img
-                    alt="Add to Slack"
-                    height="40"
-                    width="139"
-                    src="https://platform.slack-edge.com/img/add_to_slack.png"
-                    srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"
-                  />
-                </a>
-              </div>
 
               <div className="flex flex-col items-center text-center space-y-4 py-6 border-t border-gray-200 mt-8">
                 <p className="text-xl font-semibold text-black">need help with something?</p>

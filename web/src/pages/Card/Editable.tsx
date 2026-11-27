@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link, useSearchParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useQuery, gql, useMutation } from '@apollo/client';
 import * as motion from 'motion/react-client';
 
@@ -15,8 +15,6 @@ import { SparklesText } from '@/components/magicui/sparkles-text';
 import { UserMessageType, GuestMessageType, StyleType } from '@/types/app';
 import { useAuth } from '@/contexts/AuthContext';
 import { getGuestMessageIdKey } from '@/lib/utils';
-import { APP_TOKEN_KEY } from '@/lib/constants';
-import { decodeValidToken } from '@/lib/auth-token';
 import {
   Dialog,
   DialogContent,
@@ -87,31 +85,13 @@ const FLAG_CARD_MESSAGE = gql`
 
 const CardEditable: React.FC = () => {
   const { cardExternalId } = useParams<{ cardExternalId: string }>();
-  const { user, setUser } = useAuth();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { user } = useAuth();
   const guestMessageIdKey = getGuestMessageIdKey(cardExternalId!);
   const guestMessageId = localStorage.getItem(guestMessageIdKey);
   const [pendingFlagMessage, setPendingFlagMessage] = useState<
     (UserMessageType | GuestMessageType) | null
   >(null);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
-
-  // Accept auth token from URL (e.g. magic link from Slack)
-  useEffect(() => {
-    const token = searchParams.get('token');
-    if (token) {
-      const decoded = decodeValidToken(token);
-      if (decoded) {
-        localStorage.setItem(APP_TOKEN_KEY, token);
-        setUser(decoded);
-      } else {
-        console.error('Invalid or expired token in URL');
-      }
-      // Remove token from URL to keep it clean
-      searchParams.delete('token');
-      setSearchParams(searchParams, { replace: true });
-    }
-  }, [searchParams, setSearchParams, setUser]);
 
   const { data, loading, error, refetch } = useQuery(GET_CARD, {
     variables: {

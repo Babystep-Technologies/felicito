@@ -6,7 +6,7 @@ import { Bird, Grass, Hills, Sun, WavyEdge } from '@/components/doodles';
 import { cn } from '@/lib/utils';
 
 /*
- * Shared building blocks for the marketing pages (Slack, For Business, Client occasions),
+ * Shared building blocks for the marketing pages (For Business, Client occasions),
  * so they share one look with the home page: solid color blocks, ink outlines, hard
  * shadows, hills along the bottom, and springy reveals. Text on these blocks is always the
  * fixed ink color, since the backgrounds are light brand colors in both themes.

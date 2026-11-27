@@ -46,9 +46,6 @@ module GeneratedUrlHelpersModule
   def new_user_session_url(*args); end
 
   sig { params(args: T.untyped).returns(String) }
-  def oauth_slack_callback_url(*args); end
-
-  sig { params(args: T.untyped).returns(String) }
   def rails_blob_representation_proxy_url(*args); end
 
   sig { params(args: T.untyped).returns(String) }
@@ -127,6 +124,9 @@ module GeneratedUrlHelpersModule
   def rails_storage_redirect_url(*args); end
 
   sig { params(args: T.untyped).returns(String) }
+  def registry_preview_url(*args); end
+
+  sig { params(args: T.untyped).returns(String) }
   def update_rails_disk_service_url(*args); end
 
   sig { params(args: T.untyped).returns(String) }
@@ -146,9 +146,6 @@ module GeneratedUrlHelpersModule
 
   sig { params(args: T.untyped).returns(String) }
   def viewable_card_preview_url(*args); end
-
-  sig { params(args: T.untyped).returns(String) }
-  def webhooks_slack_url(*args); end
 
   sig { params(args: T.untyped).returns(String) }
   def webhooks_stripe_url(*args); end

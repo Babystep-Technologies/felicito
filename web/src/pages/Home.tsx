@@ -307,8 +307,8 @@ const Home: React.FC = () => {
                 <div>
                   <h3 className="text-2xl">Using Felicito for your business?</h3>
                   <p className="mt-1 font-medium opacity-85">
-                    Group cards your team signs in Slack, and reminders before your clients&apos;
-                    big days.
+                    Organizations that share credits across your team, and reminders before your
+                    clients&apos; big days.
                   </p>
                 </div>
               </div>
