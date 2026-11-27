@@ -32,20 +32,8 @@ class ContactList < ApplicationRecord
             uniqueness: { scope: :user_id, case_sensitive: false, message: DUPLICATE_NAME_MESSAGE },
             allow_blank: true
 
-  # The contacts on this list a carrier could actually deliver to. Computed in
-  # SQL rather than by filtering `contacts` in Ruby so the counts below stay a
-  # single query — the UI wants "38 of 42 contacts have an address" without
-  # loading forty rows to find out.
-  def mailable_contacts
-    contacts.mailable
-  end
-
   def contacts_count
     contacts.count
-  end
-
-  def mailable_contacts_count
-    mailable_contacts.count
   end
 
   private

@@ -79,8 +79,8 @@ const UPDATE_RETURN_ADDRESS = gql`
 
 /**
  * The fields the API requires the moment any address field is set
- * (`HasReturnAddress::REQUIRED_ADDRESS_FIELDS`). Unlike a contact's address,
- * there is no "nothing entered yet" escape hatch, so every field is checked on
+ * (`HasReturnAddress::REQUIRED_ADDRESS_FIELDS`). There is
+ * no "nothing entered yet" escape hatch, so every field is checked on
  * every save.
  */
 const REQUIRED_RETURN_ADDRESS_FIELDS: { field: keyof AddressDraft; label: string }[] = [

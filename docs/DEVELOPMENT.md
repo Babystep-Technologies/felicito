@@ -36,9 +36,8 @@ request was anonymous and sign-in appeared to succeed while silently doing nothi
 ### Return address
 
 `User` (via the `HasReturnAddress` concern) carries the user's own mailing address as six loose
-columns, `return_address_line1`/`_line2`/`_city`/`_region`/`_postal_code`/`_country_code`, mirroring
-how `Contact` carries a mailing address: the moment any field is set, line1/city/postal
-code/country are all required (`User#return_address_complete?`). Set it with
+columns, `return_address_line1`/`_line2`/`_city`/`_region`/`_postal_code`/`_country_code`. The
+moment any field is set, line1/city/postal code/country are all required (`User#return_address_complete?`). Set it with
 `Mutations::UpdateReturnAddress`, surfaced as the "Return address" section of the profile page. In
 specs, `create(:user, :with_return_address)` gives a complete one.
 

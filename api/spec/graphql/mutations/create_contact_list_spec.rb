@@ -10,7 +10,7 @@ RSpec.describe Mutations::CreateContactList, type: :request do
     <<~GRAPHQL
       mutation CreateContactList($name: String!) {
         createContactList(input: { name: $name }) {
-          contactList { id name contactsCount mailableContactsCount }
+          contactList { id name contactsCount }
           errors
         }
       }
@@ -27,7 +27,7 @@ RSpec.describe Mutations::CreateContactList, type: :request do
 
     data = JSON.parse(response.body).dig("data", "createContactList")
     expect(data["errors"]).to be_empty
-    expect(data["contactList"]).to include("name" => "Family", "contactsCount" => 0, "mailableContactsCount" => 0)
+    expect(data["contactList"]).to include("name" => "Family", "contactsCount" => 0)
   end
 
   it "rejects a duplicate name for the same user" do

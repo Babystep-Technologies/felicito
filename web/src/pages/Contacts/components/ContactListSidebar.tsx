@@ -60,17 +60,13 @@ type ContactListSidebarProps = {
   selectedListId: string | null;
   onSelectList: (listId: string | null) => void;
   totalContacts: number;
-  mailableContacts: number;
   /** Refetch contacts and lists — a delete changes both. */
   onChanged: () => Promise<unknown>;
 };
 
-// "38 of 42 have an address" is what tells the user whether a send would actually reach
-// everyone on the list, so both numbers are always shown together.
-function countsLabel(total: number, mailable: number): string {
+function countsLabel(total: number): string {
   if (total === 0) return 'No contacts yet';
-  const contacts = total === 1 ? '1 contact' : `${total} contacts`;
-  return `${contacts} · ${mailable} with addresses`;
+  return total === 1 ? '1 contact' : `${total} contacts`;
 }
 
 const ContactListSidebar: React.FC<ContactListSidebarProps> = ({
@@ -78,7 +74,6 @@ const ContactListSidebar: React.FC<ContactListSidebarProps> = ({
   selectedListId,
   onSelectList,
   totalContacts,
-  mailableContacts,
   onChanged,
 }) => {
   const [createContactList] = useMutation(CREATE_CONTACT_LIST);
@@ -177,9 +172,7 @@ const ContactListSidebar: React.FC<ContactListSidebarProps> = ({
           onClick={() => onSelectList(null)}
         >
           <span className="block truncate text-sm font-medium">All contacts</span>
-          <span className="block text-xs text-gray-500">
-            {countsLabel(totalContacts, mailableContacts)}
-          </span>
+          <span className="block text-xs text-gray-500">{countsLabel(totalContacts)}</span>
         </button>
 
         {lists.length === 0 ? (
@@ -198,7 +191,7 @@ const ContactListSidebar: React.FC<ContactListSidebarProps> = ({
                 >
                   <span className="block truncate text-sm font-medium">{list.name}</span>
                   <span className="block text-xs text-gray-500">
-                    {countsLabel(list.contactsCount, list.mailableContactsCount)}
+                    {countsLabel(list.contactsCount)}
                   </span>
                 </button>
                 <DropdownMenu>

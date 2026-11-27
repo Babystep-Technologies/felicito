@@ -1,10 +1,9 @@
 import React from 'react';
-import { Bell, MailWarning, MapPin, Pencil, Plus, Trash2 } from 'lucide-react';
+import { Bell, Pencil, Plus, Trash2 } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatPhoneForDisplay } from '@/lib/phone';
-import { formatAddressSummary } from '@/lib/address';
 import { formatDate, reminderLeadLabel } from '../format';
 import type { Contact, Occasion } from '../types';
 
@@ -29,8 +28,6 @@ const ContactRow: React.FC<ContactRowProps> = ({
   onEditOccasion,
   onDeleteOccasion,
 }) => {
-  const address = formatAddressSummary(contact);
-
   return (
     <li className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
@@ -44,30 +41,12 @@ const ContactRow: React.FC<ContactRowProps> = ({
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <p className="truncate text-lg font-semibold text-gray-900">{contact.name}</p>
-            {/* The fastest read on "would a printed card actually reach this person?" */}
-            {contact.mailable ? (
-              <Badge variant="secondary" className="bg-green-100 text-green-800">
-                <MapPin className="h-3 w-3" />
-                Mailable
-              </Badge>
-            ) : (
-              <Badge variant="outline" className="text-gray-500">
-                <MailWarning className="h-3 w-3" />
-                No address
-              </Badge>
-            )}
           </div>
           <p className="text-sm text-gray-500">
             {[contact.relationship, contact.email, formatPhoneForDisplay(contact.phone)]
               .filter(Boolean)
               .join(' · ') || 'No details'}
           </p>
-          {address && (
-            <p className="mt-1 flex items-start gap-1.5 text-sm text-gray-500">
-              <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gray-400" />
-              <span className="min-w-0">{address}</span>
-            </p>
-          )}
           {contact.contactLists.length > 0 && (
             <p className="mt-1.5 flex flex-wrap gap-1">
               {contact.contactLists.map(list => (

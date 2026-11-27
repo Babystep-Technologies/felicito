@@ -13,9 +13,8 @@ class Mutations::UpdateContact
       email: T.nilable(::String),
       relationship: T.nilable(::String),
       phone: T.nilable(::String),
-      notes: T.nilable(::String),
-      address: T.untyped
+      notes: T.nilable(::String)
     ).returns(T.untyped)
   end
-  def resolve(contact_id:, name: T.unsafe(nil), email: T.unsafe(nil), relationship: T.unsafe(nil), phone: T.unsafe(nil), notes: T.unsafe(nil), **address); end
+  def resolve(contact_id:, name: T.unsafe(nil), email: T.unsafe(nil), relationship: T.unsafe(nil), phone: T.unsafe(nil), notes: T.unsafe(nil)); end
 end

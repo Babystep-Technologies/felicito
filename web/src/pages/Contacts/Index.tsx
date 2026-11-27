@@ -19,15 +19,6 @@ import {
   type CountryCode as PhoneCountryCode,
 } from '@/lib/phone';
 import {
-  addressDraftFrom,
-  addressInput,
-  emptyAddressDraft,
-  hasAddressInput,
-  validateAddress,
-  type AddressDraft,
-  type AddressErrors,
-} from '@/lib/address';
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -42,19 +33,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import AddressFields from './components/AddressFields';
 import BulkActionBar from './components/BulkActionBar';
 import ContactListSidebar from './components/ContactListSidebar';
 import ContactRow from './components/ContactRow';
 import ContactsToolbar from './components/ContactsToolbar';
 import { formatDate, relativeLabel, reminderLeadLabel } from './format';
-import type {
-  AddressFilter,
-  Contact,
-  ContactListSummary,
-  Occasion,
-  UpcomingOccasion,
-} from './types';
+import type { Contact, ContactListSummary, Occasion, UpcomingOccasion } from './types';
 
 const CONTACT_FIELDS = gql`
   fragment ContactFields on Contact {
@@ -64,13 +48,6 @@ const CONTACT_FIELDS = gql`
     relationship
     phone
     notes
-    addressLine1
-    addressLine2
-    city
-    region
-    postalCode
-    countryCode
-    mailable
     contactLists {
       id
       name
@@ -103,7 +80,6 @@ const MY_CONTACT_LISTS = gql`
       id
       name
       contactsCount
-      mailableContactsCount
     }
   }
 `;
@@ -212,7 +188,6 @@ type ContactDraft = {
   phone: string;
   phoneCountry: PhoneCountryCode;
   notes: string;
-  address: AddressDraft;
 };
 
 const INVALID_PHONE_MESSAGE = "That doesn't look like a valid phone number";
@@ -279,11 +254,9 @@ const Contacts: React.FC = () => {
   const [saving, setSaving] = useState(false);
   // Shown under the phone field once the user leaves it (or tries to save) with a bad number.
   const [phoneError, setPhoneError] = useState<string | null>(null);
-  const [addressErrors, setAddressErrors] = useState<AddressErrors>({});
 
-  // Which list the table is filtered to (null = everyone), and by address completeness.
+  // Which list the table is filtered to (null = everyone).
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
-  const [addressFilter, setAddressFilter] = useState<AddressFilter>('all');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const activeList = useMemo(
@@ -291,29 +264,12 @@ const Contacts: React.FC = () => {
     [lists, selectedListId]
   );
 
-  // The selected list narrows the population; the address filter then narrows what's shown.
-  // Keeping them separate lets the filter chips count against the list, not the whole book.
-  const listContacts = useMemo(
+  const visibleContacts = useMemo(
     () =>
       selectedListId
         ? contacts.filter(contact => contact.contactLists.some(list => list.id === selectedListId))
         : contacts,
     [contacts, selectedListId]
-  );
-
-  const visibleContacts = useMemo(() => {
-    if (addressFilter === 'has') return listContacts.filter(contact => contact.mailable);
-    if (addressFilter === 'missing') return listContacts.filter(contact => !contact.mailable);
-    return listContacts;
-  }, [listContacts, addressFilter]);
-
-  const mailableCount = useMemo(
-    () => contacts.filter(contact => contact.mailable).length,
-    [contacts]
-  );
-  const listMailableCount = useMemo(
-    () => listContacts.filter(contact => contact.mailable).length,
-    [listContacts]
   );
 
   const visibleIds = useMemo(
@@ -346,7 +302,6 @@ const Contacts: React.FC = () => {
 
   const openAddContact = () => {
     setPhoneError(null);
-    setAddressErrors({});
     setContactDialog({
       id: null,
       draft: {
@@ -356,7 +311,6 @@ const Contacts: React.FC = () => {
         phone: '',
         phoneCountry: DEFAULT_PHONE_COUNTRY,
         notes: '',
-        address: emptyAddressDraft(),
       },
     });
   };
@@ -364,7 +318,6 @@ const Contacts: React.FC = () => {
   const openEditContact = (contact: Contact) => {
     const { country, national } = fromE164(contact.phone);
     setPhoneError(null);
-    setAddressErrors({});
     setContactDialog({
       id: contact.id,
       draft: {
@@ -374,17 +327,8 @@ const Contacts: React.FC = () => {
         phone: national,
         phoneCountry: country,
         notes: contact.notes ?? '',
-        address: addressDraftFrom(contact),
       },
     });
-  };
-
-  const patchAddress = (patch: Partial<AddressDraft>) => {
-    setAddressErrors({});
-    setContactDialog(
-      prev =>
-        prev && { ...prev, draft: { ...prev.draft, address: { ...prev.draft.address, ...patch } } }
-    );
   };
 
   const openAddOccasion = (contactId: string) =>
@@ -427,14 +371,6 @@ const Contacts: React.FC = () => {
       return;
     }
     setPhoneError(null);
-    // The API rejects a partial address outright, so catch it here rather than letting the
-    // user discover the rule from a server error.
-    const addressProblems = validateAddress(draft.address);
-    setAddressErrors(addressProblems);
-    if (Object.keys(addressProblems).length > 0) {
-      toast.error('Please finish the mailing address, or clear it');
-      return;
-    }
     setSaving(true);
     try {
       const variables = {
@@ -445,7 +381,6 @@ const Contacts: React.FC = () => {
           relationship: draft.relationship.trim(),
           phone,
           notes: draft.notes.trim(),
-          ...addressInput(draft.address),
         },
       };
       const { data } = id ? await updateContact({ variables }) : await createContact({ variables });
@@ -545,22 +480,20 @@ const Contacts: React.FC = () => {
   // What the contacts panel says when it has nothing to show, which depends on why.
   const emptyMessage = () => {
     if (contacts.length === 0) return "You haven't added anyone yet.";
-    if (activeList && listContacts.length === 0) return `No contacts on ${activeList.name} yet.`;
-    if (addressFilter === 'has') return 'Nobody here has a mailing address yet.';
-    if (addressFilter === 'missing') return 'Everyone here has a mailing address. Nice.';
+    if (activeList) return `No contacts on ${activeList.name} yet.`;
     return 'No contacts match this filter.';
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 px-4 py-8">
+    <div className="min-h-[calc(100vh-4rem)] px-4 py-8">
       <Toaster />
       <div className="mx-auto w-full max-w-6xl">
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Contacts</h1>
             <p className="mt-1 text-gray-600">
-              Keep track of the people you care about — their special days, and where to mail them a
-              card.
+              Keep track of the people you care about and their special days, so a card never goes
+              unsent.
             </p>
           </div>
           <Button onClick={openAddContact} className="shrink-0">
@@ -616,7 +549,6 @@ const Contacts: React.FC = () => {
               clearSelection();
             }}
             totalContacts={contacts.length}
-            mailableContacts={mailableCount}
             onChanged={refetchAll}
           />
 
@@ -630,10 +562,6 @@ const Contacts: React.FC = () => {
                 selectedCount={effectiveSelectedIds.length}
                 visibleCount={visibleContacts.length}
                 onToggleAll={toggleAll}
-                addressFilter={addressFilter}
-                onAddressFilterChange={setAddressFilter}
-                totalCount={listContacts.length}
-                mailableCount={listMailableCount}
               />
             )}
 
@@ -780,12 +708,6 @@ const Contacts: React.FC = () => {
                   rows={3}
                 />
               </div>
-              <AddressFields
-                value={contactDialog.draft.address}
-                onChange={patchAddress}
-                errors={addressErrors}
-                defaultOpen={hasAddressInput(contactDialog.draft.address)}
-              />
             </div>
           )}
           <DialogFooter>

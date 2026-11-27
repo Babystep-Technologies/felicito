@@ -53,24 +53,13 @@ RSpec.describe ContactList, type: :model do
 
     it "counts every contact on the list" do
       create(:contact_list_membership, contact_list: list, contact: create(:contact, user:))
-      create(:contact_list_membership, contact_list: list, contact: create(:contact, :mailable, user:))
+      create(:contact_list_membership, contact_list: list, contact: create(:contact, user:))
 
       expect(list.contacts_count).to eq(2)
     end
 
-    it "counts only contacts with a deliverable address as mailable" do
-      create(:contact_list_membership, contact_list: list, contact: create(:contact, user:))
-      mailable = create(:contact, :mailable, user:)
-      create(:contact_list_membership, contact_list: list, contact: mailable)
-
-      expect(list.mailable_contacts_count).to eq(1)
-      expect(list.mailable_contacts).to eq([ mailable ])
-      expect(list.mailable_contacts.map(&:mailable?)).to all(be(true))
-    end
-
     it "is zero for an empty list" do
       expect(list.contacts_count).to eq(0)
-      expect(list.mailable_contacts_count).to eq(0)
     end
   end
 
@@ -107,20 +96,6 @@ RSpec.describe ContactList, type: :model do
       create(:contact_list_membership, contact_list: list, contact:)
 
       expect(contact.reload.contact_lists.map(&:name)).to eq([ "Family" ])
-    end
-  end
-
-  describe "Contact.mailable" do
-    it "matches exactly the contacts #mailable? is true for" do
-      create(:contact, user:)
-      create(:contact, :mailable, user:)
-      # A partial address can only be written past validation, but a legacy row
-      # could still hold one — the scope must agree with the predicate anyway.
-      partial = build(:contact, user:, city: "San Francisco")
-      partial.save(validate: false)
-
-      expect(Contact.mailable.count).to eq(1)
-      expect(user.contacts.map(&:mailable?).count(true)).to eq(1)
     end
   end
 end
